@@ -8,16 +8,15 @@
  *
  * Summary:
  *     Name: PPT Combiner
- *     Build: 1
  *
  *     Combines ppt presentation files together into one ppt. Useful for regular meetings were contributors just combine slides.
  *
- *     REQUIREMENT: POWERPOINT MUST BE INSTALLED FOR THIS TO WORK.
+ *     ***REQUIREMENT***: POWERPOINT MUST BE INSTALLED FOR THIS TO WORK.
  *
  *     Input arguments:
  *     If no argument is supplied all ppt's in the working directory are merged into the output. Arguments are handled as described
  *     below. Multiple arguments are handled separately in this manner and the outputs are numbered after the first (e.g. combined.ppt, combined_2.ppt, combined_3.ppt).
- *         - A path is supplied. All ppt's in the supplied path are merged into the output.
+ *         - A path is supplied. All ppt's in the supplied directory are merged into the output.
  *         - A path to a txt file is supplied as an argument.
  *             - Contains relative (to the .txt) or absolute paths to .ppt files separated on new lines.
  *         - (NEEDS) StdIn etc.
@@ -36,6 +35,12 @@
  *
  *         /I
  *             Interactive mode. Will inform user of the number of presentations being merged, prompt for output name etc.
+ *
+ *         /R
+ *             Recursive mode. PPTCombine will attempt to find all ppts from the supplied directory root.
+ *
+ *         /?
+ *             Show help documentation (this)
  */
 
 // Globals
@@ -59,24 +64,28 @@ var FLAG_FILENAME = "combined.ppt";
 
     //Handle arguments
     if (unnamedArguments.Count !== 0) {
-        //If there are unnamed arguments handle each.
+        //Handle each unnamed argument
         for (var i = 0; i < unnamedArguments.Count; i++) {
             handleArgument(unnamedArguments.Item(i));
         }
     } else {
-        //If there's no arguments then attempt to merge ppt files in the current working directory.
+        //Attempt to merge any ppt files in the current directory
         var slidePaths = getPresentations(FILE_SYSTEM_OBJ.GetFolder(
             WSCRIPT_SHELL.CurrentDirectory
         ));
 
-        //If there's files to combine then perform the combination.
+        //If there's files to doCombine then perform the combination.
         if (slidePaths.length > 0) {
-            combine(slidePaths);
+            doCombine(slidePaths);
         }
         else {
+            //TODO: Handle this error properly.
             throw new Error("NYI: No PPT files found, prompt user or show error.");
         }
     }
+
+    //TODO: StdOut, more informative message.
+    WScript.Echo("Combination complete!")
 
     WScript.quit(0);
 }
@@ -85,31 +94,32 @@ var FLAG_FILENAME = "combined.ppt";
 
 /**
  * Handle a program argument. An argument may be either a path to a directory or a txt file for parsing.
- * @param argument A program argument (example1: path\to\list.txt example2: path\to\dir)
+ * @param argument {string} A program argument (example1: path\to\list.txt example2: path\to\dir)
  */
 function handleArgument(argument){
     //Check if the argument has an extension and if it is a .txt
     var extension = getExtension(argument);
+
     if (extension === "txt"){
         if(FILE_SYSTEM_OBJ.FileExists(argument)){
             var textFile = FILE_SYSTEM_OBJ.GetFile(argument);
             var files = presentationTxtListToArray(textFile);
             //Perform combination
-            combine(files);
+            doCombine(files);
         }
         else {
-            throw new Error("Text file not found.");
+            throw new Error("Supplied text file not found.");
         }
     }
     else if (extension.length === 0) {
-        //If it is a directory that exists, get the pptFiles, filter out for ppt pptFiles, and combine them.
+        //If it is a directory that exists, get the presentations, filter out for ppt presentations, and doCombine them.
         if (FILE_SYSTEM_OBJ.FolderExists(argument)){
             var folder = FILE_SYSTEM_OBJ.GetFolder(argument);
 
-            var pptFiles = getPresentations(folder);
+            var presentations = getPresentations(folder);
 
-            if (pptFiles.length > 0) {
-                combine(pptFiles);
+            if (presentations.length > 0) {
+                doCombine(presentations);
             }
             else {
                 throw new Error("No presentations were found in the specified folder");
@@ -134,33 +144,40 @@ function flagHandler(flags){
     //    /O: Output path
     //    /N: Filename
     //    /I: Interactive mode
+    //    /R: Recursive mode
     //    /?: Help dump
 }
 
 /**
  * Convert a text file containing file names or paths on each entry into an array of FileSystemObject.File's. The root folder is the folder the txt file is contained within.
  * @param textFile {FileSystemObject.File} A text file for parsing.
- * @returns {Array} An array of FileSystemObject.File's for each presentation found.
+ * @returns {Array.<FileSystemObject.File>} The files found in the txt document.
  */
 function presentationTxtListToArray(textFile){
     var presentations = [];
 
-    //Reopen the textfile as a stream, keep a reference to the directory it was contained in.
+    //Reopen the textfile as a stream, keep a reference to the directoryPath it was contained in.
     var slideList = FILE_SYSTEM_OBJ.OpenTextFile(textFile.Path, 1);
-    var directory = textFile.ParentFolder;
+    var directoryPath = textFile.ParentFolder.Path;
 
-    //For each entry in the txt file, check if it exists (required), append the absolute path, push it onto the return value.
+    //For each entry check if it can be parsed directly as an absolute path; otherwise, try it as a relative path.
     while (!slideList.AtEndOfStream){
         var entry = slideList.ReadLine();
+        var relativePath = directoryPath + "\\" + entry;
 
         //If it's an absolute path
         if(FILE_SYSTEM_OBJ.FileExists(entry)){
-             presentations.push(FILE_SYSTEM_OBJ.GetFile(entry));
+             presentations.push(
+                 FILE_SYSTEM_OBJ.GetFile(entry)
+             );
         }
-        else if(FILE_SYSTEM_OBJ.FileExists(directory.Path + entry)){
-            presentations.push(FILE_SYSTEM_OBJ.GetFile(directory.Path + entry));
+        else if(FILE_SYSTEM_OBJ.FileExists(relativePath)){
+            presentations.push(
+                FILE_SYSTEM_OBJ.GetFile(relativePath)
+            );
         }
         else {
+            //TODO: Implement a proper error handler.
             throw new Error("Could not parse a line");
         }
     }
@@ -172,9 +189,9 @@ function presentationTxtListToArray(textFile){
 
 /**
  * Combine the supplied presentation files into one presentation.
- * @param presentations {Array} An array containing FileSystemObject.File's
+ * @param presentations {Array.<FileSystemObject.File>} The presentations to merge
  */
-function combine(presentations){
+function doCombine(presentations){
     //Open powerpoint, create a target document for combination, and show the window
     var powerPointApplication = new ActiveXObject("Powerpoint.Application");
     var target = powerPointApplication.Presentations.Add();
@@ -195,8 +212,8 @@ function combine(presentations){
 
 /**
  * Extract the extension of a supplied path or filename.
- * @param filename {String} A filename (or path). May contain multiple dots with no problems
- * @returns {String} The extracted extension (e.g. bat, js, ppt)
+ * @param filename {string} A filename (or path).
+ * @returns {string} The extracted extension (e.g. bat, js, ppt)
  */
 function getExtension(filename){
     //Extract extension regex
@@ -205,11 +222,12 @@ function getExtension(filename){
 }
 
 /**
- * Check if a file may be merged by this program.
+ * Returns <code>true</code> if the file may be merged by this program.
  * @param file {FileSystemObject.File} The file to check.
- * @returns {Boolean} If the file may be merged.
+ * @returns {boolean} If the file may be merged.
  */
 function canMerge(file){
+    //TODO: Reimplement this as an array of allowed filenames (e.g. IndexOf)
     var extension = getExtension(file.Name);
     switch(extension){
         case "ppt":
@@ -222,22 +240,33 @@ function canMerge(file){
 }
 
 /**
- * Get all the ppt files in the specified directory.
- * @param directory {FileSystemObject.Folder} Folder object containing the presentations to be extracted
- * @returns {Array} An array of FileSystemObject.File's for presentations found.
+ * Returns the presentations contained within the supplied directory.
+ * @param directory {FileSystemObject.Folder} The directory to parse.
+ * @returns {Array.<FileSystemObject.File>} The FileSystemObject's found.
  */
 function getPresentations(directory){
-    var pptFiles = [];
+    var presentations = [];
 
     var filesEnumerator = new Enumerator(directory.Files);
-    for(; !filesEnumerator.atEnd(); filesEnumerator.moveNext()){
-        var currentFile = filesEnumerator.item();
-        if(canMerge(currentFile)){
-            pptFiles.push(currentFile);
-        }
-    }
 
-    return pptFiles;
+    forEachEnumerable(filesEnumerator, function(item){
+        if(canMerge(item)){
+            presentations.push(item);
+        }
+    });
+
+    return presentations;
+}
+
+/**
+ * Iterate over an Enumerator object, applying a function to each enumerated item.
+ * @param enumerable {Enumerator} An enumerable object
+ * @param func {function(Object)} A function to apply to each item in the Enumerator.
+ */
+function forEachEnumerable(enumerable, func){
+    for(; !enumerable.atEnd(); enumerable.moveNext()){
+        func(enumerable.item());
+    }
 }
 
 var HELP_TEXT = "Not yet implemented!";
