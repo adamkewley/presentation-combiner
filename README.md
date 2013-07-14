@@ -1,15 +1,12 @@
 # PPTCombiner #
-
 A console based JScript program that will combine multiple PowerPoint presentations into one. Useful for regular meetings were presenters just combine slides in a serial style. This project is inspired from the excellent <a href="http://code.google.com/p/powerpointjoin/">PPTJoin</a> (updated perl-based version <a href="https://github.com/richardsugg/PowerpointJoin">here</a>) and offers some extra functionality.
 
 ## Requirements ##
-
 - The script may only by ran on a Windows operating system (uses CScript).
 - PowerPoint must be installed
 
 # Usage #
 ## Basic Usage ##
-
 Basic usage of PPTCombiner involves copying it into a folder containing .ppt's you wish to combine and running it as a Windows clientside JScript file:
 
     CScript pptCombiner.js
@@ -17,7 +14,6 @@ Basic usage of PPTCombiner involves copying it into a folder containing .ppt's y
 The output will be a file named combined.ppt in the folder.
 
 ## Other usage ##
-
 ### Directory argument ###
 PPTCombiner will accept a path to a directory as its argument, all presentation files in the specified directory will be combined into the combined.ppt output:
 
