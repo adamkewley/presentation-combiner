@@ -15,7 +15,7 @@ Usage
 
 Basic usage of PPTCombiner involves copying it into a folder containing .ppt's you wish to combine and running it as a Windows clientside JScript file:
 
-CScript pptCombiner.js
+    CScript pptCombiner.js
 
 The result will be a combined powerpoint file: combined.ppt
 
@@ -24,18 +24,14 @@ The result will be a combined powerpoint file: combined.ppt
 ### Directory argument ###
 PPTCombiner will accept a directory as its argument, all files will be combined in that directory and the output will be the current working directory:
 
-CScript pptCombiner.js C:\MySlides
+    CScript pptCombiner.js C:\MySlides
 
 ### Text file argument ###
 A text file containing the ppt's to combine may also be supplied:
 
--Example text file-
-
-C:\An\Absolute\Path.ppt
-A_Relative_File.ppt
-\A\Relative\Path.ppt
-
--End text file-
+    C:\An\Absolute\Path.ppt
+    A_Relative_File.ppt
+    \A\Relative\Path.ppt
 
 
 
