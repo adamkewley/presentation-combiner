@@ -47,9 +47,9 @@ Flags shall be implemented to allow finer control over how PPTCombiner.js works.
 + /? : Show documentation.
 
 ## Standard input/output ##
-PPTCombiner will eventually accept standard input:
+There are plans for PPTCombiner to support StdIn and StdOut arguments:
 
-    dir | CScript pptCombiner.js
+    dir | CScript pptCombiner.js | start
     
 ## Enhanced text file support ##
 The text file should also be able to contain directories to be merged; for example:
