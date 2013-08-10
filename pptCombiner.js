@@ -11,7 +11,7 @@
  *
  *     Combines ppt presentation files together into one ppt. Useful for regular meetings were contributors just combine slides.
  *
- *     ***REQUIREMENT***: POWERPOINT MUST BE INSTALLED FOR THIS TO WORK.
+ *     ***REQUIREMENT***: Microsoft Powerpoint must be installed for this to work.
  *
  *     Input arguments:
  *     If no argument is supplied all ppt's in the working directory are merged into the output. Arguments are handled as described
@@ -25,29 +25,33 @@
  *          Combined .ppt file named combined.ppt (may be changed with flags). Files named combined.ppt will be ignored when this program is ran.
  *
  *     Flags:
- *         /O:"path\filename"
+ *         /o:"path\filename"
  *             Redirects combined output to the location specified
  *             Example: CScript PPTCombiner.js /O:"C:\CombineHere.ppt"
  *
- *         /N:"filename"
- *             Renames the combined.ppt file, overridden by /O flag.
- *             Example: CScript PPTCombiner.js /N:"CombinedSlides"
- *
- *         /I
- *             Interactive mode. Will inform user of the number of presentations being merged, prompt for output name etc.
- *
- *         /R
- *             Recursive mode. PPTCombine will attempt to find all ppts from the supplied directory root.
- *
  *         /?
- *             Show help documentation (this)
+ *             Show help documentation.
  */
 
 // Globals
+var HELP_TEXT =
+    [
+        "PPTCombiner",
+        "Combines multiple Powerpoint presentations into one.",
+        "",
+        "CScript pptCombiner.js [path] [/o[[:]path]",
+        "",
+        "    [path]",
+        "        Specify a path to a directory containing presentations to be combined. May also specify a text file which contains paths (separated by newlines) to perform pptCombine on.",
+        "",
+        "    /o        Specifies the output path for the combined presentation (e.g. /o:\"NewName.ppt\")"
+    ].join('\n');
+
 var FILE_SYSTEM_OBJ = new ActiveXObject("Scripting.FileSystemObject");
 var WSCRIPT_SHELL = WScript.CreateObject("WScript.Shell");
 var WORKING_DIRECTORY = WSCRIPT_SHELL.CurrentDirectory;
 
+var FLAG_OUTPUT_DIRECTORY = WORKING_DIRECTORY;
 var FLAG_FILENAME = "combined.ppt";
 
 /**
@@ -76,7 +80,7 @@ var FLAG_FILENAME = "combined.ppt";
 
         //If there's files to doCombine then perform the combination.
         if (slidePaths.length > 0) {
-            doCombine(slidePaths);
+            doCombine(slidePaths, FLAG_OUTPUT_DIRECTORY + "\\" + FLAG_FILENAME);
         }
         else {
             //TODO: Handle this error properly.
@@ -85,7 +89,7 @@ var FLAG_FILENAME = "combined.ppt";
     }
 
     //TODO: StdOut, more informative message.
-    WScript.Echo("Combination complete!")
+    WScript.Echo("Combination complete!");
 
     WScript.quit(0);
 }
@@ -105,7 +109,7 @@ function handleArgument(argument){
             var textFile = FILE_SYSTEM_OBJ.GetFile(argument);
             var files = presentationTxtListToArray(textFile);
             //Perform combination
-            doCombine(files);
+            doCombine(files, FLAG_OUTPUT_DIRECTORY + "\\" + FLAG_FILENAME);
         }
         else {
             throw new Error("Supplied text file not found.");
@@ -119,7 +123,7 @@ function handleArgument(argument){
             var presentations = getPresentations(folder);
 
             if (presentations.length > 0) {
-                doCombine(presentations);
+                doCombine(presentations, FLAG_OUTPUT_DIRECTORY + "\\" + FLAG_FILENAME);
             }
             else {
                 throw new Error("No presentations were found in the specified folder");
@@ -139,13 +143,28 @@ function handleArgument(argument){
  * @param flags {WScript.Arguments.Named} Application flags. (example: /? example2: /I)
  */
 function flagHandler(flags){
-    throw new Error("Flag handler not yet implemented!");
-    //Flags to handle:
-    //    /O: Output path
-    //    /N: Filename
-    //    /I: Interactive mode
-    //    /R: Recursive mode
-    //    /?: Help dump
+    // Help file
+    if (flags.Exists("?")){
+        // Dump the help text, don't continue program execution.
+        WScript.Echo(HELP_TEXT);
+        WScript.Quit(0);
+    }
+
+    // Handle /o flag
+    if (flags.Exists("o")){
+        //TODO: Santitize this input
+        FLAG_FILENAME = flags.Item("o");
+    }
+
+    // Interactive mode
+    if (flags.Exists("i")){
+        throw new Error("interactive mode flag passed NYI");
+    }
+
+    // Recursive mode
+    if (flags.Exists("r")){
+        throw new Error("recursive mode flag passed NYI");
+    }
 }
 
 /**
@@ -156,14 +175,15 @@ function flagHandler(flags){
 function presentationTxtListToArray(textFile){
     var presentations = [];
 
-    //Reopen the textfile as a stream, keep a reference to the directoryPath it was contained in.
+    //Open the textFile as a stream, keep a reference to the textFileDirectory it was contained in.
     var slideList = FILE_SYSTEM_OBJ.OpenTextFile(textFile.Path, 1);
-    var directoryPath = textFile.ParentFolder.Path;
+    var textFileDirectory = textFile.ParentFolder.Path;
 
     //For each entry check if it can be parsed directly as an absolute path; otherwise, try it as a relative path.
     while (!slideList.AtEndOfStream){
+
         var entry = slideList.ReadLine();
-        var relativePath = directoryPath + "\\" + entry;
+        var relativePath = textFileDirectory + "\\" + entry;
 
         //If it's an absolute path
         if(FILE_SYSTEM_OBJ.FileExists(entry)){
@@ -171,14 +191,27 @@ function presentationTxtListToArray(textFile){
                  FILE_SYSTEM_OBJ.GetFile(entry)
              );
         }
+        // If it's a relative path
         else if(FILE_SYSTEM_OBJ.FileExists(relativePath)){
             presentations.push(
                 FILE_SYSTEM_OBJ.GetFile(relativePath)
             );
         }
+        // If it's an absolute path to a directory, parse that.
+        else if(FILE_SYSTEM_OBJ.FolderExists(entry)){
+            var folder = FILE_SYSTEM_OBJ.GetFolder(entry);
+            var foundPresentations = getPresentations(folder);
+            presentations = presentations.concat(foundPresentations);
+        }
+        // If it's a relative path to a directory, handle that.
+        else if(FILE_SYSTEM_OBJ.FolderExists(relativePath)){
+            var folder = FILE_SYSTEM_OBJ.GetFolder(relativePath);
+            var foundPresentations = getPresentations(folder);
+            presentations = presentations.concat(foundPresentations);
+        }
+        // Unknown line in the text file, error out.
         else {
-            //TODO: Implement a proper error handler.
-            throw new Error("Could not parse a line");
+            throw new Error("Unknown text file entry.")
         }
     }
 
@@ -188,14 +221,13 @@ function presentationTxtListToArray(textFile){
 //Core functions
 
 /**
- * Combine the supplied presentation files into one presentation.
+ * Combine the supplied presentation files into one presentation. Save to the specified path.
  * @param presentations {Array.<FileSystemObject.File>} The presentations to merge
  */
-function doCombine(presentations){
+function doCombine(presentations, savePath){
     //Open powerpoint, create a target document for combination, and show the window
     var powerPointApplication = new ActiveXObject("Powerpoint.Application");
     var target = powerPointApplication.Presentations.Add();
-    powerPointApplication.Visible = true;
 
     //Perform the merge.
     for (var i = 0; i < presentations.length; i++){
@@ -203,15 +235,15 @@ function doCombine(presentations){
     }
 
     //Save & Close
-    target.SaveAs(WORKING_DIRECTORY + "\\" + FLAG_FILENAME);
+    target.SaveAs(savePath);
     target.Close();
     powerPointApplication.Quit();
 }
 
-//General functions
+// Helper functions
 
 /**
- * Extract the extension of a supplied path or filename.
+ * Returns the extension of a supplied path or filename.
  * @param filename {string} A filename (or path).
  * @returns {string} The extracted extension (e.g. bat, js, ppt)
  */
@@ -222,7 +254,7 @@ function getExtension(filename){
 }
 
 /**
- * Returns <code>true</code> if the file may be merged by this program.
+ * Returns <code>true</code> if the file may be merged by pptCombiner.
  * @param file {FileSystemObject.File} The file to check.
  * @returns {boolean} If the file may be merged.
  */
@@ -268,5 +300,3 @@ function forEachEnumerable(enumerable, func){
         func(enumerable.item());
     }
 }
-
-var HELP_TEXT = "Not yet implemented!";

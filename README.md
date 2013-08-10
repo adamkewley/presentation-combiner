@@ -3,7 +3,7 @@ A console based JScript program that will combine multiple PowerPoint presentati
 
 ## Requirements ##
 - The script may only by ran on a Windows operating system (uses CScript).
-- PowerPoint must be installed
+- Microsoft PowerPoint must be installed
 
 # Usage #
 ## Basic Usage ##
@@ -15,11 +15,11 @@ The output will be a file named combined.ppt in the folder.
 
 ## Other usage ##
 ### Directory argument ###
-PPTCombiner will accept a path to a directory as its argument, all presentation files in the specified directory will be combined into the combined.ppt output:
+PPTCombiner will accept a path to a directory as its argument, all presentation files in the specified directory will be combined into the combined.ppt output. There are several allowed input types:
 
 #### Absolute directory path ####
 
-    CScript pptCombiner.js C:\MySlides
+    CScript pptCombiner.js C:\some\absolute\path
     
 #### Relative directory path ####
 
@@ -31,26 +31,24 @@ A .txt file containing paths separated by newlines may also supplied. The paths 
     C:\An\Absolute\Path.ppt
     A_Relative_File.ppt
     \A\Relative\Path.ppt
-    
-The combined.ppt output will be in the current working directory unless otherwise stated.
+    C:\An\Absolute\Directory
+    A\Relative\Directory
+
+### Flags ###
+PPTCombiner currently has the following flags implemented:
++ /o : Declare the output filename\path.
+++ Specify a new filename "/o:"myNewCombinedFilename.ppt"
+++ Specify an absolute path "/o:"C:\CombinedOutput.ppt"
+++ Specify a relative path "/o: "some\subfolder\filename.ppt"
++ /? : View the in-terminal readme.
 
 # ToDo #
-## Option flags ##
-Flags shall be implemented to allow finer control over how PPTCombiner.js works. Currently scheduled for implementation are:
-+ /O "some_path\some_filename.ppt" : Selects an output format
+## Additional option flags ##
+Flags planned for implementation are:
 + /I : Interactive mode. Allows user to more easily select the required combine method
 + /R : Recursive mode. Will attempt to combine all ppt found recursively through a folder structure.
-+ /? : Show documentation.
 
 ## Standard input/output ##
 There are plans for PPTCombiner to support StdIn and StdOut arguments:
 
     dir | CScript pptCombiner.js | start
-    
-## Enhanced text file support ##
-The text file should also be able to contain directories to be merged; for example:
-
-    C:\An\Absolute\Path\To\AFile.ppt
-    A_Relative_File
-    A_Relative_Directory
-    C:\An\Absolute\Directory
