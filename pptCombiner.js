@@ -29,6 +29,9 @@
  *             Redirects combined output to the location specified
  *             Example: CScript PPTCombiner.js /O:"C:\CombineHere.ppt"
  *
+ *         /r
+ *             Recursive mode. All presentations in all subfolders will be combined into the final presentation.
+ *
  *         /?
  *             Show help documentation.
  */
@@ -44,15 +47,19 @@ var HELP_TEXT =
         "    [path]",
         "        Specify a path to a directory containing presentations to be combined. May also specify a text file which contains paths (separated by newlines) to perform pptCombine on.",
         "",
-        "    /o        Specifies the output path for the combined presentation (e.g. /o:\"NewName.ppt\")"
+        "    /o        Specifies the output path for the combined presentation (e.g. /o:\"NewName.ppt\")",
+        "    /r        Enables recursive mode. Folder arguments from all sources will be handled recursively by PPTCombiner.",
+        ""
     ].join('\n');
 
 var FILE_SYSTEM_OBJ = new ActiveXObject("Scripting.FileSystemObject");
 var WSCRIPT_SHELL = WScript.CreateObject("WScript.Shell");
 var WORKING_DIRECTORY = WSCRIPT_SHELL.CurrentDirectory;
 
+// Default flag values.
 var FLAG_OUTPUT_DIRECTORY = WORKING_DIRECTORY;
 var FLAG_FILENAME = "combined.ppt";
+var FLAG_RECURSIVE_MODE = false;
 
 /**
  * Application entry point (main).
@@ -61,18 +68,19 @@ var FLAG_FILENAME = "combined.ppt";
     var namedArguments = WScript.Arguments.Named;
     var unnamedArguments = WScript.Arguments.Unnamed;
 
-    //Handle flags (named arguments, e.g. /I /O "output\path\myOutputFile.ppt") handle them before anything else.
+    // Handle flags (e.g. /o, /i).
     if(namedArguments.Count > 0){
         flagHandler(namedArguments);
     }
 
-    //Handle arguments
+    // Handle unnamed arguments.
     if (unnamedArguments.Count !== 0) {
         //Handle each unnamed argument
         for (var i = 0; i < unnamedArguments.Count; i++) {
             handleArgument(unnamedArguments.Item(i));
         }
-    } else {
+    }
+    else {
         //Attempt to merge any ppt files in the current directory
         var slidePaths = getPresentations(FILE_SYSTEM_OBJ.GetFolder(
             WSCRIPT_SHELL.CurrentDirectory
@@ -139,31 +147,34 @@ function handleArgument(argument){
 }
 
 /**
- * Handles program flags. Flags may have an effect on program globals.
+ * Handles program flags. Flags may change program globals.
  * @param flags {WScript.Arguments.Named} Application flags. (example: /? example2: /I)
  */
 function flagHandler(flags){
-    // Help file
     if (flags.Exists("?")){
-        // Dump the help text, don't continue program execution.
+        // Dump the help text, stop program execution.
         WScript.Echo(HELP_TEXT);
         WScript.Quit(0);
     }
 
-    // Handle /o flag
     if (flags.Exists("o")){
-        //TODO: Santitize this input
-        FLAG_FILENAME = flags.Item("o");
+        // Get the flag input
+        var flagValue = flags.Item("o");
+
+        if(getExtension(flagValue).length === 0){
+            FLAG_FILENAME = flagValue + ".ppt";
+        }
+        else {
+            FLAG_FILENAME = flagValue;
+        }
     }
 
-    // Interactive mode
     if (flags.Exists("i")){
         throw new Error("interactive mode flag passed NYI");
     }
 
-    // Recursive mode
     if (flags.Exists("r")){
-        throw new Error("recursive mode flag passed NYI");
+        FLAG_RECURSIVE_MODE = true;
     }
 }
 
@@ -272,22 +283,55 @@ function canMerge(file){
 }
 
 /**
- * Returns the presentations contained within the supplied directory.
- * @param directory {FileSystemObject.Folder} The directory to parse.
+ * Get the presentations contained within the folder.
+ * @param folder {FileSystemObject.Folder} The folder to parse.
  * @returns {Array.<FileSystemObject.File>} The FileSystemObject's found.
  */
-function getPresentations(directory){
+function getPresentations(folder){
     var presentations = [];
 
-    var filesEnumerator = new Enumerator(directory.Files);
-
-    forEachEnumerable(filesEnumerator, function(item){
+    // Push all mergeable files in the folder into the return value.
+    forEachCollection(folder.Files, function(item){
         if(canMerge(item)){
             presentations.push(item);
         }
     });
 
+    // If recursive mode is on, recur through the subfolders.
+    if (FLAG_RECURSIVE_MODE === true){
+        var subFolders = collectionToArray(folder.SubFolders);
+        forEachArray(subFolders, function(subFolder){
+            presentations = presentations.concat(
+                getPresentations(subFolder)
+            );
+        });
+    }
+
     return presentations;
+}
+
+/**
+ * Convert the collection to a standard ECMAScript array.
+ * @param collection {Who on earth knows} The microsoft collection object.
+ * @returns {Array.<Object>} The conversion product
+ */
+function collectionToArray(collection){
+    var returnArray = [];
+
+    forEachCollection(collection, function(item){
+        returnArray.push(item);
+    });
+
+    return returnArray;
+}
+
+/**
+ * Iterate over a collection object, applying a function to each enumerated item.
+ * @param collection
+ * @param func
+ */
+function forEachCollection(collection, func){
+    forEachEnumerable(new Enumerator(collection), func);
 }
 
 /**
@@ -298,5 +342,16 @@ function getPresentations(directory){
 function forEachEnumerable(enumerable, func){
     for(; !enumerable.atEnd(); enumerable.moveNext()){
         func(enumerable.item());
+    }
+}
+
+/**
+ * Iterate over an array, applying a function to each enumerated item.
+ * @param array {Array.<Object>} The array to iterate over.
+ * @param func {function(Object)} The function to apply to each object in the array.
+ */
+function forEachArray(array, func){
+    for(var i = 0; i < array.length; i++){
+        func(array[i]);
     }
 }

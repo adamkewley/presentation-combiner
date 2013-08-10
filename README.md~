@@ -41,11 +41,12 @@ PPTCombiner currently has the following flags implemented:
 ++ Specify an absolute path "/o:"C:\CombinedOutput.ppt"
 ++ Specify a relative path "/o: "some\subfolder\filename.ppt"
 + /? : View the in-terminal readme.
-+ /r : Enable recursive mode. Folder arguments from all sources will be handled recursively by PPTCombiner (including folders specified in text files).
+
 # ToDo #
 ## Additional option flags ##
 Flags planned for implementation are:
 + /I : Interactive mode. Allows user to more easily select the required combine method
++ /R : Recursive mode. Will attempt to combine all ppt found recursively through a folder structure.
 
 ## Standard input/output ##
 There are plans for PPTCombiner to support StdIn and StdOut arguments:
