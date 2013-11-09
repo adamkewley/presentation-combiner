@@ -25,11 +25,11 @@
  *          Combined .ppt file named combined.ppt (may be changed with flags). Files named combined.ppt will be ignored when this program is ran.
  *
  *     Flags:
- *         /o:"path\filename"
+ *         /O:"path\filename"
  *             Redirects combined output to the location specified
  *             Example: CScript PPTCombiner.js /O:"C:\CombineHere.ppt"
  *
- *         /r
+ *         /R
  *             Recursive mode. All presentations in all subfolders will be combined into the final presentation.
  *
  *         /?
@@ -42,13 +42,13 @@ var HELP_TEXT =
         "PPTCombiner",
         "Combines multiple Powerpoint presentations into one.",
         "",
-        "CScript pptCombiner.js [path] [/o[[:]path]",
+        "CScript pptCombiner.js [drive:][path] [/O[[:]path] [/R]",
         "",
-        "    [path]",
-        "        Specify a path to a directory containing presentations to be combined. May also specify a text file which contains paths (separated by newlines) to perform pptCombine on.",
+        "    [drive:][path]",
+        "        Specifies a path to a directory containing presentations to be combined. May also specify a text file which contains paths (separated by newlines) to perform pptCombine on.",
         "",
-        "    /o        Specifies the output path for the combined presentation (e.g. /o:\"NewName.ppt\")",
-        "    /r        Enables recursive mode. Folder arguments from all sources will be handled recursively by PPTCombiner.",
+        "    /O        Specifies the output path for the combined presentation (e.g. /O:\"NewName.ppt\")",
+        "    /R        Enables recursive mode. Folder arguments from all sources will be handled recursively by PPTCombiner.",
         ""
     ].join('\n');
 
@@ -157,9 +157,9 @@ function flagHandler(flags){
         WScript.Quit(0);
     }
 
-    if (flags.Exists("o")){
+    if (flags.Exists("O")){
         // Get the flag input
-        var flagValue = flags.Item("o");
+        var flagValue = flags.Item("O");
 
         if(getExtension(flagValue).length === 0){
             FLAG_FILENAME = flagValue + ".ppt";
@@ -169,11 +169,7 @@ function flagHandler(flags){
         }
     }
 
-    if (flags.Exists("i")){
-        throw new Error("interactive mode flag passed NYI");
-    }
-
-    if (flags.Exists("r")){
+    if (flags.Exists("R")){
         FLAG_RECURSIVE_MODE = true;
     }
 }
@@ -229,7 +225,9 @@ function presentationTxtListToArray(textFile){
     return presentations;
 }
 
-//Core functions
+///
+/// Core functions
+///
 
 /**
  * Combine the supplied presentation files into one presentation. Save to the specified path.
@@ -251,7 +249,9 @@ function doCombine(presentations, savePath){
     powerPointApplication.Quit();
 }
 
-// Helper functions
+///
+/// Helper functions
+///
 
 /**
  * Returns the extension of a supplied path or filename.
