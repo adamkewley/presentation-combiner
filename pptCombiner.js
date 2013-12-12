@@ -52,11 +52,10 @@ var HELP_TEXT =
         ""
     ].join('\n');
 
+// Globals
 var FILE_SYSTEM_OBJ = new ActiveXObject("Scripting.FileSystemObject");
 var WSCRIPT_SHELL = WScript.CreateObject("WScript.Shell");
 var WORKING_DIRECTORY = WSCRIPT_SHELL.CurrentDirectory;
-
-// Default flag values.
 var FLAG_OUTPUT_DIRECTORY = WORKING_DIRECTORY;
 var FLAG_FILENAME = "combined.ppt";
 var FLAG_RECURSIVE_MODE = false;
@@ -88,7 +87,7 @@ var FLAG_RECURSIVE_MODE = false;
 
         //If there's files to doCombine then perform the combination.
         if (slidePaths.length > 0) {
-            doCombine(slidePaths, FLAG_OUTPUT_DIRECTORY + "\\" + FLAG_FILENAME);
+            doCombine(slidePaths, FILE_SYSTEM_OBJ.BuildPath(FLAG_OUTPUT_DIRECTORY, FLAG_FILENAME));
         }
         else {
             //TODO: Handle this error properly.
@@ -117,7 +116,7 @@ function handleArgument(argument){
             var textFile = FILE_SYSTEM_OBJ.GetFile(argument);
             var files = presentationTxtListToArray(textFile);
             //Perform combination
-            doCombine(files, FLAG_OUTPUT_DIRECTORY + "\\" + FLAG_FILENAME);
+            doCombine(files, FILE_SYSTEM_OBJ.BuildPath(FLAG_OUTPUT_DIRECTORY, FLAG_FILENAME));
         }
         else {
             throw new Error("Supplied text file not found.");
@@ -131,7 +130,7 @@ function handleArgument(argument){
             var presentations = getPresentations(folder);
 
             if (presentations.length > 0) {
-                doCombine(presentations, FLAG_OUTPUT_DIRECTORY + "\\" + FLAG_FILENAME);
+                doCombine(presentations, FILE_SYSTEM_OBJ.BuildPath(FLAG_OUTPUT_DIRECTORY, FLAG_FILENAME));
             }
             else {
                 throw new Error("No presentations were found in the specified folder");
@@ -161,12 +160,9 @@ function flagHandler(flags){
         // Get the flag input
         var flagValue = flags.Item("O");
 
-        if(getExtension(flagValue).length === 0){
-            FLAG_FILENAME = flagValue + ".ppt";
-        }
-        else {
-            FLAG_FILENAME = flagValue;
-        }
+        var fullPath = FILE_SYSTEM_OBJ.GetAbsolutePathName(flagValue);
+        FLAG_OUTPUT_DIRECTORY = FILE_SYSTEM_OBJ.GetParentFolderName(fullPath);
+        FLAG_FILENAME = FILE_SYSTEM_OBJ.GetFileName(fullPath);
     }
 
     if (flags.Exists("R")){
@@ -190,19 +186,17 @@ function presentationTxtListToArray(textFile){
     while (!slideList.AtEndOfStream){
 
         var entry = slideList.ReadLine();
-        var relativePath = textFileDirectory + "\\" + entry;
+        var relativePath = FILE_SYSTEM_OBJ.BuildPath(textFileDirectory, entry);
 
         //If it's an absolute path
         if(FILE_SYSTEM_OBJ.FileExists(entry)){
              presentations.push(
-                 FILE_SYSTEM_OBJ.GetFile(entry)
-             );
+                 FILE_SYSTEM_OBJ.GetFile(entry));
         }
         // If it's a relative path
         else if(FILE_SYSTEM_OBJ.FileExists(relativePath)){
             presentations.push(
-                FILE_SYSTEM_OBJ.GetFile(relativePath)
-            );
+                FILE_SYSTEM_OBJ.GetFile(relativePath));
         }
         // If it's an absolute path to a directory, parse that.
         else if(FILE_SYSTEM_OBJ.FolderExists(entry)){
@@ -302,8 +296,7 @@ function getPresentations(folder){
         var subFolders = collectionToArray(folder.SubFolders);
         forEachArray(subFolders, function(subFolder){
             presentations = presentations.concat(
-                getPresentations(subFolder)
-            );
+                getPresentations(subFolder));
         });
     }
 
