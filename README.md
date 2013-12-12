@@ -47,9 +47,11 @@ A .txt file containing paths separated by newlines may also supplied. The paths 
 
 PPTCombiner currently has the following flags implemented:
 
-+ /o : Declare the output filename\path.
-    ++ Specify a new filename "/o:"myNewCombinedFilename.ppt"
-    ++ Specify an absolute path "/o:"C:\CombinedOutput.ppt"
-    ++ Specify a relative path "/o: "some\subfolder\filename.ppt"
++ /O[path] : Declare the output filename\path.
+
+    - Specify a new filename "/o:"myNewCombinedFilename.ppt"
+    - Specify an absolute path "/o:"C:\CombinedOutput.ppt"
+    - Specify a relative path "/o: "some\subfolder\filename.ppt"
+
 + /? : View the in-terminal readme.
-+ /r : Enable recursive mode. Folder arguments from all sources will be handled recursively by PPTCombiner (including folders specified in text files).
++ /R : Enable recursive mode. Folder arguments from all sources will be handled recursively by PPTCombiner (including folders specified in text files).
