@@ -4,6 +4,7 @@ using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Linq;
 using System.Runtime.InteropServices;
+using System.Windows;
 using System.Windows.Input;
 
 namespace PPTCombiner.Commands
@@ -33,23 +34,31 @@ namespace PPTCombiner.Commands
         public void Execute(object parameter)
         {
             var validFiles = addedPaths.SelectMany(FHelpers.FindValidFilesInPath);
-            Type pptType = Type.GetTypeFromProgID("Powerpoint.Application");            
-            dynamic pptApp = Activator.CreateInstance(pptType);
-            pptApp.Visible = true;
-            dynamic presentation = pptApp.Presentations.Add();
-
-            foreach (string validFile in validFiles)
+            Type pptType = Type.GetTypeFromProgID("Powerpoint.Application");  
+          
+            if(pptType == null)
             {
-                int slideCount = presentation.Slides.Count;
-                try
+                MessageBox.Show("Could not launch Microsoft Powerpoint (Powerpoint.Application). Powerpoint may not be installed correctly (or at all!) if you are setting this error message.");
+            }
+            else
+            {
+                dynamic pptApp = Activator.CreateInstance(pptType);
+                pptApp.Visible = true;
+                dynamic presentation = pptApp.Presentations.Add();
+
+                foreach (string validFile in validFiles)
                 {
-                    presentation.Slides.InsertFromFile(validFile, slideCount);
+                    int slideCount = presentation.Slides.Count;
+                    try
+                    {
+                        presentation.Slides.InsertFromFile(validFile, slideCount);
+                    }
+                    catch (COMException e)
+                    {
+                        Debug.Write(e.InnerException);
+                    }
+
                 }
-                catch(COMException e)
-                {
-                    Debug.Write(e.InnerException);
-                }
-                
             }
         }
     }
