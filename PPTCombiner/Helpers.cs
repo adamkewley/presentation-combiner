@@ -16,5 +16,12 @@ namespace PPTCombiner
             if (sourceEvent != null)
                 sourceEvent(sender, e);
         }
+
+        public static bool ClientHasPowerpointInstalled()
+        {
+            Type pptType = Type.GetTypeFromProgID("Powerpoint.Application");
+
+            return pptType != null;
+        }
     }
 }
