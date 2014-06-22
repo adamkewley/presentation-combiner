@@ -1,45 +1,43 @@
 ﻿using PPTCombiner.Commands;
 using PPTCombiner.FS;
 using System;
-using System.Collections.Generic;
 using System.Collections.ObjectModel;
-using System.Collections.Specialized;
 using System.ComponentModel;
-using System.Reactive.Linq;
 using System.Reactive.Subjects;
 using System.Windows;
 using System.Windows.Input;
 
 namespace PPTCombiner
 {
-    sealed class MainWindowViewModel : INotifyPropertyChanged, IDisposable
+    sealed class MainWindowViewModel : INotifyPropertyChanged
     {
-        private readonly List<IDisposable> subscriptions;
-
         public MainWindowViewModel()
         {
-            this.subscriptions = new List<IDisposable>();
-
             this.Paths = new ObservableCollection<string>();
 
+            // Current selection.
             this.selection = new BehaviorSubject<string>("");
-            this.subscriptions.Add(this.selection.Subscribe(_ =>
-                this.PropertyChanged.Raise(this, "Selection")));
+            this.selection.Subscribe(_ =>
+                this.PropertyChanged.Raise(this, "Selection"));
 
+            // Merge button text.
             this.buttonText = FHelpers.PathListToButtonText(this.Paths);
-            this.subscriptions.Add(this.buttonText.Subscribe(_ =>
-                PropertyChanged.Raise(this, "ButtonText")));
+            this.buttonText.Subscribe(_ =>
+                PropertyChanged.Raise(this, "ButtonText"));
 
+            // File list visibility
             this.showFileList = new BehaviorSubject<Visibility>(Visibility.Hidden);
-            this.subscriptions.Add(
-                Observable.FromEventPattern<NotifyCollectionChangedEventHandler, NotifyCollectionChangedEventArgs>(
-                    ev => Paths.CollectionChanged += ev,
-                    ev => Paths.CollectionChanged -= ev)
-                .Select(_ => Paths.Count > 0 ? Visibility.Visible : Visibility.Hidden)
-                .Subscribe(showFileList));
-            this.subscriptions.Add(this.showFileList.Subscribe(_ =>
-                PropertyChanged.Raise(this, "ShowFileList")));
 
+            Paths.CollectionChanged += (s, e) =>
+            {
+                var newVisibility = Paths.Count > 0 ? Visibility.Visible : Visibility.Hidden;
+                this.showFileList.OnNext(newVisibility);
+            };
+
+            this.showFileList.Subscribe(_ =>
+                PropertyChanged.Raise(this, "ShowFileList"));
+
+            // Commands
             this.AddDirectory = new AddDirectory(Paths, selection);
             this.AddFile = new AddFile(Paths, selection);
             this.PerformMerge = new PerformMerge(Paths);
@@ -73,13 +71,5 @@ namespace PPTCombiner
         public ICommand PerformMerge { get; private set; }        
 
         public event PropertyChangedEventHandler PropertyChanged;
-
-        public void Dispose()
-        {
-            foreach(IDisposable subscription in subscriptions)
-            {
-                subscription.Dispose();
-            }
-        }
     }
 }
