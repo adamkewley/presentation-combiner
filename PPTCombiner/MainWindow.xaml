@@ -1,47 +1,71 @@
 ﻿<Window x:Class="PPTCombiner.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"    
-        Title="PPTCombiner" Height="378" Width="584"         
+        Title="PPTCombiner" Height="378" Width="549"         
         DragEnter="ListBox_DragEnter"
 		DragOver="ListBox_DragOver"
 		Drop="ListBox_Drop" 
         AllowDrop="True">
+    <Window.Resources>
+        <Style TargetType="Button">
+            <Setter Property="Padding" Value="5,5,5,5" />
+        </Style>
+    </Window.Resources>
     <Grid>
-		<Grid.RowDefinitions>
-			<RowDefinition Height="*"/>
-			<RowDefinition Height="30"/>
-		</Grid.RowDefinitions>
-		<Grid.ColumnDefinitions>
-			<ColumnDefinition Width="*"/>
-			<ColumnDefinition Width="50"/>
-		</Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*" />
+            <RowDefinition Height="50"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition/>
+            <ColumnDefinition Width="139"/>
+        </Grid.ColumnDefinitions>
         <TextBlock 
             Margin="10,10,10,10" 
             VerticalAlignment="Stretch" 
-            HorizontalAlignment="Stretch" 
+            HorizontalAlignment="Stretch"
             TextAlignment="Center" 
             FontSize="24"
             TextWrapping="Wrap"
-            Background="LightGray">Drag files and folders into the application or add them with the buttons to the right.</TextBlock>
-		<ListBox 
+            Background="LightBlue"
+            Padding="10,10,10,10">Drag files and folders into the application or add them with the buttons to the right.</TextBlock>
+        <ListBox 
 			Margin="10,10,10,10" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
 			ItemsSource="{Binding Paths}" SelectedItem="{Binding Selection}"
             Visibility="{Binding ShowFileList}" />
-		<Button Content="" Margin="10,10,0,0" VerticalAlignment="Top" Height="25" Command="{Binding AddDirectory}" HorizontalAlignment="Left" Width="25" Grid.Column="1" BorderThickness="0" ToolTip="Add a presentation folder to merge">
-			<Button.Background>
-				<ImageBrush ImageSource="img\folder_Open_32xLG.png"/>
-			</Button.Background>
-		</Button>
-		<Button Content="" Margin="10,40,15,0" VerticalAlignment="Top" Height="25" Command="{Binding AddFile}" Grid.Column="1" BorderThickness="0" Width="25" ToolTip="Add a presentation file to merge">
-			<Button.Background>
-				<ImageBrush ImageSource="img\NewWindow_6277.png"/>
-			</Button.Background>
-		</Button>
-		<Button Content="-" Margin="10,70,15,0" VerticalAlignment="Top" Height="25" Command="{Binding RemoveSelected}" Grid.Column="1" BorderThickness="0" Width="25" ToolTip="Delete the selected presentation file.">
-			<Button.Background>
-				<ImageBrush ImageSource="img\action_Cancel_16xLG.png"/>
-			</Button.Background>
-		</Button>
-        <Button Content="{Binding ButtonText}" HorizontalAlignment="Right" Margin="0, 0, 10, 0" VerticalAlignment="Top" Height="25" Background="#FF5C5CFF" Foreground="White" Command="{Binding PerformMerge}" Grid.RowSpan="2" Grid.Row="1"/>
+        <!-- Column 2 -->
+        <StackPanel Grid.Column="1" Margin="0,10,10,0">
+            <!-- Add dir -->
+            <Border CornerRadius="2" BorderThickness="1" BorderBrush="Black">
+                <Button Content="Add Directory" HorizontalContentAlignment="Right" VerticalAlignment="Top" Height="25" Command="{Binding AddDirectory}" Grid.Column="1" BorderThickness="0" ToolTip="Add a presentation folder to merge">
+                    <Button.Background>
+                        <ImageBrush ImageSource="img\folder_Open_32xLG.png" Stretch="Uniform" AlignmentX="Left"/>
+                    </Button.Background>
+                </Button>
+            </Border>
+            
+            
+            <!-- Add file -->
+            <Border CornerRadius="2" BorderThickness="1" BorderBrush="Black" Margin="0,5,0,0">
+                <Button Content="Add File" HorizontalContentAlignment="Right" VerticalAlignment="Top" Height="25" Command="{Binding AddFile}" Grid.Column="1" BorderThickness="0" ToolTip="Add a presentation file to merge">
+                    <Button.Background>
+                        <ImageBrush ImageSource="img\NewWindow_6277.png" Stretch="Uniform" AlignmentX="Left"/>
+                    </Button.Background>
+                </Button>
+            </Border>
+
+            <!-- Delete selection -->
+            <Border CornerRadius="2" BorderThickness="1" BorderBrush="Black" Margin="0,5,0,0">
+                <Button Content="Delete Selection" HorizontalContentAlignment="Right" VerticalAlignment="Top" Height="25" Command="{Binding RemoveSelected}" Grid.Column="1" BorderThickness="0" ToolTip="Delete the selected presentation file.">
+                    <Button.Background>
+                        <ImageBrush ImageSource="img\action_Cancel_16xLG.png" Stretch="Uniform" AlignmentX="Left"/>
+                    </Button.Background>
+                </Button>
+            </Border>
+        </StackPanel>
+
+
+
+        <Button Content="{Binding ButtonText}" HorizontalAlignment="Right" Margin="0, 0, 10, 0" VerticalAlignment="Top" Height="40" Background="#FF5C5CFF" Foreground="White" Command="{Binding PerformMerge}" Grid.Row="1" />
     </Grid>
 </Window>
