@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PPTCombiner.FS;
+using System;
 using System.Collections.ObjectModel;
 using System.Reactive.Subjects;
 using System.Windows.Input;
@@ -7,10 +8,11 @@ namespace PPTCombiner.Commands
 {
     class RemoveSelected : ICommand
     {
-        private readonly ObservableCollection<string> addedPaths;
-        private readonly BehaviorSubject<string> selectedPath;
+        //TODO: Change to PPTCombiner.FS.AddedPath
+        private readonly ObservableCollection<AddedPath> addedPaths;
+        private readonly BehaviorSubject<AddedPath> selectedPath;
 
-        public RemoveSelected(ObservableCollection<string> addedPaths, BehaviorSubject<string> selectedPath)
+        public RemoveSelected(ObservableCollection<AddedPath> addedPaths, BehaviorSubject<AddedPath> selectedPath)
         {
             this.addedPaths = addedPaths;
             this.selectedPath = selectedPath;
@@ -19,7 +21,7 @@ namespace PPTCombiner.Commands
 
         public bool CanExecute(object parameter)
         {
-            return !String.IsNullOrWhiteSpace(selectedPath.Value);
+            return selectedPath.Value != null;
         }
 
         public event EventHandler CanExecuteChanged;
@@ -27,7 +29,7 @@ namespace PPTCombiner.Commands
         public void Execute(object parameter)
         {
             addedPaths.Remove(selectedPath.Value);
-            selectedPath.OnNext("");
+            selectedPath.OnNext(null);
         }
     }
 }

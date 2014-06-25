@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PPTCombiner.FS;
+using System;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Reactive.Subjects;
@@ -9,10 +10,11 @@ namespace PPTCombiner.Commands
 {
     class AddDirectory : ICommand
     {
-        private readonly ObservableCollection<string> addedPaths;
-        private readonly BehaviorSubject<string> appSelection;
+        //TODO: Change to PPTCombiner.FS.AddedPath
+        private readonly ObservableCollection<AddedPath> addedPaths;
+        private readonly BehaviorSubject<AddedPath> appSelection;
 
-        public AddDirectory(ObservableCollection<string> addedPaths, BehaviorSubject<string> appSelection)
+        public AddDirectory(ObservableCollection<AddedPath> addedPaths, BehaviorSubject<AddedPath> appSelection)
         {
             this.addedPaths = addedPaths;
             this.appSelection = appSelection;
@@ -34,8 +36,9 @@ namespace PPTCombiner.Commands
             {
                 if(Directory.Exists(dialog.SelectedPath))
                 {
-                    addedPaths.Add(dialog.SelectedPath);
-                    appSelection.OnNext(dialog.SelectedPath);
+                    var selectedPath = PathHelpers.FindValidFilesInPath(dialog.SelectedPath);
+                    addedPaths.Add(selectedPath);
+                    appSelection.OnNext(selectedPath);
                 }
             }
         }

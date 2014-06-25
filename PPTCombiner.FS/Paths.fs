@@ -1,12 +1,12 @@
 ﻿namespace PPTCombiner.FS
 
-type PathType = ValidFile | InvalidFile | Folder| EmptyFolder| InvalidPath
+type PathType = ValidFile | InvalidFile | Folder| EmptyFolder | InvalidPath
 
-type AddedPath = { 
-    AddedPath : string
-    PathType : PathType
-    FileCount : int 
-    ContainedPaths : AddedPath seq option }
+type AddedPath = 
+    { AddedPath : string
+      PathType : PathType
+      FileCount : int 
+      ContainedPaths : AddedPath seq }
 
 module PathHelpers =
     open System.Collections.ObjectModel
@@ -14,12 +14,15 @@ module PathHelpers =
     open System.IO
     open System.Reactive.Subjects
 
-    let ValidExtensions = 
+    //TODO: Add more valid extensions (need test data).
+    let private ValidExtensions = 
         [ "*.ppt"
-          "*.pptx" ]
+          "*.pptx"
+          "*.pptm"
+          "*.odp" ]
 
     // Returns a sequence of valid files found within a directory.
-    let GetValidFilesInDirectory (directoryPath : string) : string seq =
+    let private GetValidFilesInDirectory (directoryPath : string) : string seq =
 
         let getValidFiles validExtension = 
             Directory.GetFiles(directoryPath, validExtension, SearchOption.TopDirectoryOnly)
@@ -34,14 +37,16 @@ module PathHelpers =
 
         let fileInfo = FileInfo(filePath)
 
-        Seq.filter (fun validExtension -> fileInfo.Extension = validExtension) ValidExtensions
-        |> Seq.isEmpty |> not
+        ValidExtensions
+        |> Seq.filter (fun validExtension -> 
+            ("*" + fileInfo.Extension) = validExtension) 
+        |> Seq.isEmpty 
+        |> not
 
     // Find valid file(s) for merging at a path. Can be a directory or a filepath.
     let rec FindValidFilesInPath (path : string) : AddedPath =
         if Directory.Exists path then
             // It's a directory (could contain no files though).
-
             let validFiles = GetValidFilesInDirectory path
             
             if validFiles = Seq.empty then 
@@ -49,30 +54,39 @@ module PathHelpers =
                 { AddedPath = path
                   PathType = EmptyFolder
                   FileCount = 0
-                  ContainedPaths = None }
+                  ContainedPaths = Seq.empty }
             else
                 // A directory containing at least one valid file.
                 { AddedPath = path
                   PathType = Folder
                   FileCount = Seq.length validFiles
-                  ContainedPaths = Some(Seq.map FindValidFilesInPath validFiles) }
+                  ContainedPaths = Seq.map FindValidFilesInPath validFiles }
 
-        else if File.Exists path && IsAValidFile path then
+        else if File.Exists path then
             if IsAValidFile path then
                 // A valid file.
                 { AddedPath = path
                   PathType = ValidFile
                   FileCount = 1
-                  ContainedPaths = None }
+                  ContainedPaths = Seq.empty }
             else
                 // An invalid file.
                 { AddedPath = path
                   PathType = InvalidFile
                   FileCount = 1
-                  ContainedPaths = None }
+                  ContainedPaths = Seq.empty }
         else
             // An invalid path was added.
             { AddedPath = path
-              PathType = InvalidFile
+              PathType = InvalidPath
               FileCount = 0
-              ContainedPaths = None }
+              ContainedPaths = Seq.empty }
+
+    let rec GetMergeTargets addedPath = seq {
+        match addedPath.PathType with
+        | ValidFile -> yield addedPath
+        | Folder -> 
+            for path in addedPath.ContainedPaths do
+                yield! GetMergeTargets path
+        | InvalidFile | EmptyFolder | InvalidPath -> ()
+    }

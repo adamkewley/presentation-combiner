@@ -13,10 +13,11 @@ namespace PPTCombiner
     {
         public MainWindowViewModel()
         {
-            this.Paths = new ObservableCollection<string>();
+            //TODO: Change to PPTCombiner.FS.AddedPath
+            this.Paths = new ObservableCollection<AddedPath>();
 
             // Current selection.
-            this.selection = new BehaviorSubject<string>("");
+            this.selection = new BehaviorSubject<AddedPath>(null);
             this.selection.Subscribe(_ =>
                 this.PropertyChanged.Raise(this, "Selection"));
 
@@ -44,10 +45,11 @@ namespace PPTCombiner
             this.RemoveSelected = new RemoveSelected(Paths, selection);
         }
 
-        public ObservableCollection<string> Paths { get; private set; }
+        //TODO: Change to PPTCombiner.FS.AddedPath
+        public ObservableCollection<AddedPath> Paths { get; private set; }
 
-        private readonly BehaviorSubject<string> selection;
-        public string Selection
+        private readonly BehaviorSubject<AddedPath> selection;
+        public AddedPath Selection
         {
             get { return selection.Value; }
             set { selection.OnNext(value); }

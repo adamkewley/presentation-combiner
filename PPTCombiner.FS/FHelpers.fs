@@ -5,14 +5,13 @@ open System
 open System.IO
 open System.Reactive.Subjects
 
-    
 // Produces dynamic helper text that indicates the total number of slides found.
 let PathListToButtonText (addedFilesList : ObservableCollection<AddedPath>) : BehaviorSubject<string> = 
 
-    let countTotalValidFiles =
-        Seq.filter(fun addedPath -> addedPath.PathType <> PathType.InvalidFile)
-        >> Seq.map(fun addedPath -> addedPath.FileCount)
-        >> Seq.fold (+) 0
+    let countTotalValidFiles = 
+        Seq.map PathHelpers.GetMergeTargets 
+        >> Seq.concat 
+        >> Seq.length
 
     let subject = new BehaviorSubject<string>("Nothing to merge.")
 

@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PPTCombiner.FS;
+using System;
 using System.Windows;
 
 namespace PPTCombiner
@@ -22,8 +23,9 @@ namespace PPTCombiner
 
         private void ListBox_Drop(object sender, DragEventArgs e)
         {
-            viewModel.Paths.Add(draggedPath);
-            viewModel.Selection = draggedPath;
+            var addedPath = PathHelpers.FindValidFilesInPath(draggedPath);
+            viewModel.Paths.Add(addedPath);
+            viewModel.Selection = addedPath;
             e.Handled = true;
         }
 

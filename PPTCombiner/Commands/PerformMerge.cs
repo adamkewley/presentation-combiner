@@ -11,8 +11,10 @@ namespace PPTCombiner.Commands
 {
     class PerformMerge : ICommand
     {
-        private readonly ObservableCollection<string> addedPaths;
-        public PerformMerge(ObservableCollection<string> addedPaths)
+        //TODO: Change to PPTCombiner.FS.AddedPath
+        private readonly ObservableCollection<AddedPath> addedPaths;
+
+        public PerformMerge(ObservableCollection<AddedPath> addedPaths)
         {
             this.addedPaths = addedPaths;
             this.addedPaths.CollectionChanged += addedPaths_CollectionChanged;
@@ -25,15 +27,17 @@ namespace PPTCombiner.Commands
 
         public bool CanExecute(object parameter)
         {
-            return
-                addedPaths.SelectMany(FHelpers.FindValidFilesInPath).Count() > 0;
+            int validMergeTargets = addedPaths.SelectMany(PathHelpers.GetMergeTargets).Count();
+            return validMergeTargets > 0;
         }
 
         public event EventHandler CanExecuteChanged;
 
         public void Execute(object parameter)
         {
-            var validFiles = addedPaths.SelectMany(FHelpers.FindValidFilesInPath);
+            var validFiles = addedPaths
+                .SelectMany(PathHelpers.GetMergeTargets)
+                .Select(x => x.AddedPath);
             Type pptType = Type.GetTypeFromProgID("Powerpoint.Application");  
           
             if(pptType == null)

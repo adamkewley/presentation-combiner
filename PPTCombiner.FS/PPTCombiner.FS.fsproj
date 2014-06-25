@@ -63,6 +63,7 @@
   </Choose>
   <Import Project="$(FSharpTargetsPath)" />
   <ItemGroup>
+    <Compile Include="Paths.fs" />
     <Compile Include="FHelpers.fs" />
     <None Include="packages.config" />
   </ItemGroup>
