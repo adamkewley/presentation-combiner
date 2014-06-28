@@ -10,7 +10,6 @@ namespace PPTCombiner.Commands
 {
     class AddDirectory : ICommand
     {
-        //TODO: Change to PPTCombiner.FS.AddedPath
         private readonly ObservableCollection<AddedPath> addedPaths;
         private readonly BehaviorSubject<AddedPath> appSelection;
 

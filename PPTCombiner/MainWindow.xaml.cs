@@ -19,13 +19,14 @@ namespace PPTCombiner
             this.viewModel = new MainWindowViewModel();
             this.DataContext = this.viewModel;
             InitializeComponent();
+            this.viewModel.Selection.Subscribe(viewModelSelectionChanged);
         }
 
         private void ListBox_Drop(object sender, DragEventArgs e)
         {
             var addedPath = PathHelpers.FindValidFilesInPath(draggedPath);
             viewModel.Paths.Add(addedPath);
-            viewModel.Selection = addedPath;
+            viewModel.Selection.OnNext(addedPath);
             e.Handled = true;
         }
 
@@ -64,6 +65,57 @@ namespace PPTCombiner
         {            
             e.Effects = validDataDraggedIn ? DragDropEffects.Copy : DragDropEffects.None;
             e.Handled = true;
+        }
+
+        /// <summary>
+        /// Occurs when the user selects something in the UI.
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void AddedPathsList_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
+        {
+            AddedPathView newSelection = this.AddedPathsList.SelectedItem as AddedPathView;
+            var vmSelectionSubject = this.viewModel.Selection;
+
+            if(newSelection == null)
+            {
+                if (vmSelectionSubject.Value == null) return;
+                else vmSelectionSubject.OnNext(null);
+            }
+            else
+            {
+                if (newSelection.AddedPath == vmSelectionSubject.Value) return;
+                else vmSelectionSubject.OnNext(newSelection.AddedPath);
+            }
+
+            e.Handled = true;
+        }
+
+        /// <summary>
+        /// Occurs when the viewmodel changes the selection.
+        /// </summary>
+        /// <param name="newSelection"></param>
+        private void viewModelSelectionChanged(AddedPath newSelection)
+        {
+            AddedPathView uiSelection = this.AddedPathsList.SelectedItem as AddedPathView;
+
+            if (uiSelection == null)
+            {
+                if (newSelection == null) return;
+                else this.AddedPathsList.SelectedItem = newSelection.AddedPathtoAddedPathView();
+            }
+            else
+            {
+                if (uiSelection.AddedPath == newSelection) return;
+                else if(newSelection == null)
+                {
+                    this.AddedPathsList.SelectedIndex = -1;
+                }
+                else
+                {
+                    this.AddedPathsList.SelectedItem = newSelection.AddedPathtoAddedPathView();
+                }
+            }
         }
     }
 }

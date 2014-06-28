@@ -8,14 +8,19 @@
         AllowDrop="True">
     <Window.Resources>
         <Style TargetType="Button">
-            <Setter Property="Padding" Value="5,5,5,5" />
+            <Setter Property="Padding" Value="10,10,10,10" />
         </Style>
         
         <Style TargetType="ListBox">
             <Setter Property="ItemTemplate">
                 <Setter.Value>
                     <DataTemplate>
-                        <TextBlock Text="{Binding AddedPath}" />
+                        <WrapPanel>
+                            <Image Width="25" Height="25" Source="{Binding Icon}" Margin="5,5,15,5" />
+                            <TextBlock Text="{Binding Name}" Margin="0,0,15,0" />
+                            <TextBlock Text="Slides: " />
+                            <TextBlock Text="{Binding ValidFileCount}" />
+                        </WrapPanel>                        
                     </DataTemplate>
                 </Setter.Value>
             </Setter>
@@ -39,15 +44,15 @@
             TextWrapping="Wrap"
             Background="LightBlue"
             Padding="10,10,10,10">Drag files and folders into the application or add them with the buttons to the right.</TextBlock>
-        <ListBox 
-			Margin="10,10,10,10" VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
-			ItemsSource="{Binding Paths}" SelectedItem="{Binding Selection}"
+        <ListBox x:Name="AddedPathsList"
+			Margin="10,10,10,10" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" 
+			ItemsSource="{Binding PathsView}" SelectionChanged="AddedPathsList_SelectionChanged" SelectionMode="Extended"
             Visibility="{Binding ShowFileList}" />
         <!-- Column 2 -->
         <StackPanel Grid.Column="1" Margin="0,10,10,0">
             <!-- Add dir -->
             <Border CornerRadius="2" BorderThickness="1" BorderBrush="Black">
-                <Button Content="Add Directory" HorizontalContentAlignment="Right" VerticalAlignment="Top" Height="25" Command="{Binding AddDirectory}" Grid.Column="1" BorderThickness="0" ToolTip="Add a presentation folder to merge">
+                <Button Content="Add Directory" HorizontalContentAlignment="Right" VerticalAlignment="Top" Command="{Binding AddDirectory}" Grid.Column="1" BorderThickness="0" ToolTip="Add a presentation folder to merge">
                     <Button.Background>
                         <ImageBrush ImageSource="img\folder_Open_32xLG.png" Stretch="Uniform" AlignmentX="Left"/>
                     </Button.Background>
@@ -57,7 +62,7 @@
             
             <!-- Add file -->
             <Border CornerRadius="2" BorderThickness="1" BorderBrush="Black" Margin="0,5,0,0">
-                <Button Content="Add File" HorizontalContentAlignment="Right" VerticalAlignment="Top" Height="25" Command="{Binding AddFile}" Grid.Column="1" BorderThickness="0" ToolTip="Add a presentation file to merge">
+                <Button Content="Add File" HorizontalContentAlignment="Right" VerticalAlignment="Top" Command="{Binding AddFile}" Grid.Column="1" BorderThickness="0" ToolTip="Add a presentation file to merge">
                     <Button.Background>
                         <ImageBrush ImageSource="img\NewWindow_6277.png" Stretch="Uniform" AlignmentX="Left"/>
                     </Button.Background>
@@ -66,7 +71,7 @@
 
             <!-- Delete selection -->
             <Border CornerRadius="2" BorderThickness="1" BorderBrush="Black" Margin="0,5,0,0">
-                <Button Content="Delete Selection" HorizontalContentAlignment="Right" VerticalAlignment="Top" Height="25" Command="{Binding RemoveSelected}" Grid.Column="1" BorderThickness="0" ToolTip="Delete the selected presentation file.">
+                <Button Content="Delete Selection" HorizontalContentAlignment="Right" VerticalAlignment="Top" Command="{Binding RemoveSelected}" Grid.Column="1" BorderThickness="0" ToolTip="Delete the selected presentation file.">
                     <Button.Background>
                         <ImageBrush ImageSource="img\action_Cancel_16xLG.png" Stretch="Uniform" AlignmentX="Left"/>
                     </Button.Background>
@@ -76,6 +81,6 @@
 
 
 
-        <Button Content="{Binding ButtonText}" HorizontalAlignment="Right" Margin="0, 0, 10, 0" VerticalAlignment="Top" Height="40" Background="#FF5C5CFF" Foreground="White" Command="{Binding PerformMerge}" Grid.Row="1" />
+        <Button Content="{Binding ButtonText}" HorizontalAlignment="Right" Margin="0, 0, 10, 0" VerticalAlignment="Top" Height="40" Background="{DynamicResource {x:Static SystemColors.MenuHighlightBrushKey}}" Command="{Binding PerformMerge}" Grid.Row="1" />
     </Grid>
 </Window>

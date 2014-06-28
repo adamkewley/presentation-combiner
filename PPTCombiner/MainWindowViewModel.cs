@@ -13,25 +13,26 @@ namespace PPTCombiner
     {
         public MainWindowViewModel()
         {
-            //TODO: Change to PPTCombiner.FS.AddedPath
             this.Paths = new ObservableCollection<AddedPath>();
+            this.PathsView = this.Paths.DynamicMap(pathModel => pathModel.AddedPathtoAddedPathView());
 
             // Current selection.
-            this.selection = new BehaviorSubject<AddedPath>(null);
-            this.selection.Subscribe(_ =>
-                this.PropertyChanged.Raise(this, "Selection"));
+            this.Selection = new BehaviorSubject<AddedPath>(null);
 
             // Merge button text.
-            this.buttonText = FHelpers.PathListToButtonText(this.Paths);
-            this.buttonText.Subscribe(_ =>
-                PropertyChanged.Raise(this, "ButtonText"));
+            FHelpers.PathListToButtonText(this.Paths)
+                .Subscribe(newButtonText =>
+                {
+                    this.ButtonText = newButtonText;
+                    PropertyChanged.Raise(this, "ButtonText");
+                });
 
             // File list visibility
             this.showFileList = new BehaviorSubject<Visibility>(Visibility.Hidden);
 
-            Paths.CollectionChanged += (s, e) =>
+            PathsView.CollectionChanged += (s, e) =>
             {
-                var newVisibility = Paths.Count > 0 ? Visibility.Visible : Visibility.Hidden;
+                var newVisibility = PathsView.Count > 0 ? Visibility.Visible : Visibility.Hidden;
                 this.showFileList.OnNext(newVisibility);
             };
 
@@ -39,27 +40,18 @@ namespace PPTCombiner
                 PropertyChanged.Raise(this, "ShowFileList"));
 
             // Commands
-            this.AddDirectory = new AddDirectory(Paths, selection);
-            this.AddFile = new AddFile(Paths, selection);
-            this.PerformMerge = new PerformMerge(Paths);
-            this.RemoveSelected = new RemoveSelected(Paths, selection);
+            this.AddDirectory = new AddDirectory(this.Paths, this.Selection);
+            this.AddFile = new AddFile(this.Paths, this.Selection);
+            this.PerformMerge = new PerformMerge(this.Paths);
+            this.RemoveSelected = new RemoveSelected(this.Paths, this.Selection);
         }
 
-        //TODO: Change to PPTCombiner.FS.AddedPath
+
         public ObservableCollection<AddedPath> Paths { get; private set; }
+        public ObservableCollection<AddedPathView> PathsView { get; private set; }
+        public BehaviorSubject<AddedPath> Selection { get; private set; }
 
-        private readonly BehaviorSubject<AddedPath> selection;
-        public AddedPath Selection
-        {
-            get { return selection.Value; }
-            set { selection.OnNext(value); }
-        }
-
-        private readonly BehaviorSubject<string> buttonText;
-        public string ButtonText
-        {
-            get { return buttonText.Value; }
-        }
+        public string ButtonText { get; private set; }
 
         private readonly BehaviorSubject<Visibility> showFileList;
         public Visibility ShowFileList

@@ -27,7 +27,7 @@ namespace PPTCombiner.Commands
 
         public bool CanExecute(object parameter)
         {
-            int validMergeTargets = addedPaths.SelectMany(PathHelpers.GetMergeTargets).Count();
+            int validMergeTargets = addedPaths.SelectMany(PathHelpers.ExtractMergeTargets).Count();
             return validMergeTargets > 0;
         }
 
@@ -36,7 +36,7 @@ namespace PPTCombiner.Commands
         public void Execute(object parameter)
         {
             var validFiles = addedPaths
-                .SelectMany(PathHelpers.GetMergeTargets)
+                .SelectMany(PathHelpers.ExtractMergeTargets)
                 .Select(x => x.AddedPath);
             Type pptType = Type.GetTypeFromProgID("Powerpoint.Application");  
           
