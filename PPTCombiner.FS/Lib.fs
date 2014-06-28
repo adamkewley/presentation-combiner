@@ -6,6 +6,7 @@ open System.Collections.ObjectModel
 
 // Copied from http://fssnip.net/dv
 module ObservableCollection =
+
     /// <summary>
     /// Create a derived ObservableCollection which mirrors changes in the source collection.
     /// </summary>

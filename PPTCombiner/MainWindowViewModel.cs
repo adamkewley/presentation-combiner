@@ -11,6 +11,9 @@ namespace PPTCombiner
 {
     sealed class MainWindowViewModel : INotifyPropertyChanged
     {
+        private readonly ObservableCollection<AddedPath> paths;
+        private readonly ObservableCollection<AddedPath> selection;
+
         public MainWindowViewModel()
         {
             this.Paths = new ObservableCollection<AddedPath>();
@@ -28,24 +31,20 @@ namespace PPTCombiner
                 });
 
             // File list visibility
-            this.showFileList = new BehaviorSubject<Visibility>(Visibility.Hidden);
-
+            this.ShowFileList = Visibility.Hidden;
             PathsView.CollectionChanged += (s, e) =>
             {
                 var newVisibility = PathsView.Count > 0 ? Visibility.Visible : Visibility.Hidden;
-                this.showFileList.OnNext(newVisibility);
+                this.ShowFileList = newVisibility;
+                PropertyChanged.Raise(this, "ShowFileList");
             };
 
-            this.showFileList.Subscribe(_ =>
-                PropertyChanged.Raise(this, "ShowFileList"));
-
-            // Commands
+            // Command initialization.
             this.AddDirectory = new AddDirectory(this.Paths, this.Selection);
             this.AddFile = new AddFile(this.Paths, this.Selection);
             this.PerformMerge = new PerformMerge(this.Paths);
             this.RemoveSelected = new RemoveSelected(this.Paths, this.Selection);
         }
-
 
         public ObservableCollection<AddedPath> Paths { get; private set; }
         public ObservableCollection<AddedPathView> PathsView { get; private set; }
@@ -53,11 +52,7 @@ namespace PPTCombiner
 
         public string ButtonText { get; private set; }
 
-        private readonly BehaviorSubject<Visibility> showFileList;
-        public Visibility ShowFileList
-        {
-            get { return showFileList.Value; }
-        }
+        public Visibility ShowFileList { get; private set; }
 
         public ICommand AddDirectory { get; private set; }
         public ICommand AddFile { get; private set; }
