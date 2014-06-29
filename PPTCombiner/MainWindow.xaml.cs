@@ -9,24 +9,44 @@ namespace PPTCombiner
     /// </summary>
     public partial class MainWindow : Window
     {
-        private readonly MainWindowViewModel viewModel;
+        private readonly MainWindowViewModel viewModel = new MainWindowViewModel();
 
+        // Drag & drop watchers.
         private bool validDataDraggedIn = false;
         private string draggedPath = null;
+        private bool selectionLock = false;
 
         public MainWindow()
         {
-            this.viewModel = new MainWindowViewModel();
             this.DataContext = this.viewModel;
             InitializeComponent();
-            this.viewModel.Selection.Subscribe(viewModelSelectionChanged);
+
+            // Monitor changes in the selection from the viewmodel.
+            this.viewModel.SelectionView.CollectionChanged += (s, e) =>
+            {
+                if (selectionLock) return;
+
+                selectionLock = true;
+                OcExtensions.GenericMirrorChangesHandler(
+                    (AddedPathView x) => x, e, this.AddedPathsList.SelectedItems);
+                selectionLock = false;
+
+                this.AddedPathsList.Focus();
+            };
         }
+
+        #region Drag & Drop
 
         private void ListBox_Drop(object sender, DragEventArgs e)
         {
-            var addedPath = PathHelpers.FindValidFilesInPath(draggedPath);
-            viewModel.Paths.Add(addedPath);
-            viewModel.Selection.OnNext(addedPath);
+            var addedPath = 
+                PathHelpers
+                    .FindValidFilesInPath(draggedPath)
+                    .AddedPathtoAddedPathView();
+
+            viewModel.PathsView.Add(addedPath);
+            viewModel.SelectionView.Add(addedPath); // Select the dragged item.
+
             e.Handled = true;
         }
 
@@ -67,6 +87,10 @@ namespace PPTCombiner
             e.Handled = true;
         }
 
+        #endregion
+
+        #region Selection Logic
+
         /// <summary>
         /// Occurs when the user selects something in the UI.
         /// </summary>
@@ -74,48 +98,22 @@ namespace PPTCombiner
         /// <param name="e"></param>
         private void AddedPathsList_SelectionChanged(object sender, System.Windows.Controls.SelectionChangedEventArgs e)
         {
-            AddedPathView newSelection = this.AddedPathsList.SelectedItem as AddedPathView;
-            var vmSelectionSubject = this.viewModel.Selection;
+            // Prevent circular updating of selection collection.
+            if (selectionLock) return;
 
-            if(newSelection == null)
+            selectionLock = true;
+            foreach(AddedPathView addedPath in e.AddedItems)
             {
-                if (vmSelectionSubject.Value == null) return;
-                else vmSelectionSubject.OnNext(null);
-            }
-            else
-            {
-                if (newSelection.AddedPath == vmSelectionSubject.Value) return;
-                else vmSelectionSubject.OnNext(newSelection.AddedPath);
+                this.viewModel.SelectionView.Add(addedPath);
             }
 
-            e.Handled = true;
+            foreach(AddedPathView removedPath in e.RemovedItems)
+            {
+                this.viewModel.SelectionView.Remove(removedPath);
+            }
+            selectionLock = false;
         }
 
-        /// <summary>
-        /// Occurs when the viewmodel changes the selection.
-        /// </summary>
-        /// <param name="newSelection"></param>
-        private void viewModelSelectionChanged(AddedPath newSelection)
-        {
-            AddedPathView uiSelection = this.AddedPathsList.SelectedItem as AddedPathView;
-
-            if (uiSelection == null)
-            {
-                if (newSelection == null) return;
-                else this.AddedPathsList.SelectedItem = newSelection.AddedPathtoAddedPathView();
-            }
-            else
-            {
-                if (uiSelection.AddedPath == newSelection) return;
-                else if(newSelection == null)
-                {
-                    this.AddedPathsList.SelectedIndex = -1;
-                }
-                else
-                {
-                    this.AddedPathsList.SelectedItem = newSelection.AddedPathtoAddedPathView();
-                }
-            }
-        }
+        #endregion
     }
 }

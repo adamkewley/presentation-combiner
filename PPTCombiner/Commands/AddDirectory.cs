@@ -2,18 +2,17 @@
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
-using System.Reactive.Subjects;
 using System.Windows.Forms;
 using System.Windows.Input;
 
 namespace PPTCombiner.Commands
 {
-    class AddDirectory : ICommand
+    internal sealed class AddDirectory : ICommand
     {
         private readonly ObservableCollection<AddedPath> addedPaths;
-        private readonly BehaviorSubject<AddedPath> appSelection;
+        private readonly ObservableCollection<AddedPath> appSelection;
 
-        public AddDirectory(ObservableCollection<AddedPath> addedPaths, BehaviorSubject<AddedPath> appSelection)
+        public AddDirectory(ObservableCollection<AddedPath> addedPaths, ObservableCollection<AddedPath> appSelection)
         {
             this.addedPaths = addedPaths;
             this.appSelection = appSelection;
@@ -37,7 +36,7 @@ namespace PPTCombiner.Commands
                 {
                     var selectedPath = PathHelpers.FindValidFilesInPath(dialog.SelectedPath);
                     addedPaths.Add(selectedPath);
-                    appSelection.OnNext(selectedPath);
+                    appSelection.Add(selectedPath);
                 }
             }
         }

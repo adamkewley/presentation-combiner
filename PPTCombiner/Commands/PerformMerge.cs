@@ -9,20 +9,14 @@ using System.Windows.Input;
 
 namespace PPTCombiner.Commands
 {
-    class PerformMerge : ICommand
+    internal sealed class PerformMerge : ICommand
     {
-        //TODO: Change to PPTCombiner.FS.AddedPath
         private readonly ObservableCollection<AddedPath> addedPaths;
 
         public PerformMerge(ObservableCollection<AddedPath> addedPaths)
         {
             this.addedPaths = addedPaths;
-            this.addedPaths.CollectionChanged += addedPaths_CollectionChanged;
-        }
-
-        void addedPaths_CollectionChanged(object sender, System.Collections.Specialized.NotifyCollectionChangedEventArgs e)
-        {
-            CanExecuteChanged.Raise(this, EventArgs.Empty);
+            this.addedPaths.CollectionChanged += (s, e) => CanExecuteChanged.Raise(this, EventArgs.Empty);
         }
 
         public bool CanExecute(object parameter)

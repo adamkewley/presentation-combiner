@@ -26,6 +26,11 @@
             </Setter>
         </Style>
     </Window.Resources>
+    
+    <Window.InputBindings>
+        <KeyBinding Command="{Binding RemoveSelected}" Gesture="DEL" />
+    </Window.InputBindings>
+    
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
@@ -78,8 +83,6 @@
                 </Button>
             </Border>
         </StackPanel>
-
-
 
         <Button Content="{Binding ButtonText}" HorizontalAlignment="Right" Margin="0, 0, 10, 0" VerticalAlignment="Top" Height="40" Background="{DynamicResource {x:Static SystemColors.MenuHighlightBrushKey}}" Command="{Binding PerformMerge}" Grid.Row="1" />
     </Grid>
