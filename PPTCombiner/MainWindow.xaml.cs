@@ -14,6 +14,8 @@ namespace PPTCombiner
         // Drag & drop watchers.
         private bool validDataDraggedIn = false;
         private string draggedPath = null;
+
+        // Circular selection updating lock.
         private bool selectionLock = false;
 
         public MainWindow()
@@ -22,12 +24,12 @@ namespace PPTCombiner
             InitializeComponent();
 
             // Monitor changes in the selection from the viewmodel.
-            this.viewModel.SelectionView.CollectionChanged += (s, e) =>
+            this.viewModel.Selection.CollectionChanged += (s, e) =>
             {
                 if (selectionLock) return;
 
                 selectionLock = true;
-                OcExtensions.GenericMirrorChangesHandler(
+                OcExtensions.MapChangesToList(
                     (AddedPathView x) => x, e, this.AddedPathsList.SelectedItems);
                 selectionLock = false;
 
@@ -41,11 +43,11 @@ namespace PPTCombiner
         {
             var addedPath = 
                 PathHelpers
-                    .FindValidFilesInPath(draggedPath)
+                    .PathToAddedPath(draggedPath)
                     .AddedPathtoAddedPathView();
 
-            viewModel.PathsView.Add(addedPath);
-            viewModel.SelectionView.Add(addedPath); // Select the dragged item.
+            viewModel.Paths.Add(addedPath);
+            viewModel.Selection.Add(addedPath); // Select the dragged item.
 
             e.Handled = true;
         }
@@ -104,12 +106,12 @@ namespace PPTCombiner
             selectionLock = true;
             foreach(AddedPathView addedPath in e.AddedItems)
             {
-                this.viewModel.SelectionView.Add(addedPath);
+                this.viewModel.Selection.Add(addedPath);
             }
 
             foreach(AddedPathView removedPath in e.RemovedItems)
             {
-                this.viewModel.SelectionView.Remove(removedPath);
+                this.viewModel.Selection.Remove(removedPath);
             }
             selectionLock = false;
         }

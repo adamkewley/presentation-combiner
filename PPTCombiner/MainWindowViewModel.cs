@@ -10,51 +10,69 @@ namespace PPTCombiner
 {
     sealed class MainWindowViewModel : INotifyPropertyChanged
     {
-        private readonly ObservableCollection<AddedPath> paths = new ObservableCollection<AddedPath>();
-        private readonly ObservableCollection<AddedPath> selection = new ObservableCollection<AddedPath>();
-
         public MainWindowViewModel()
         {
-            this.PathsView = 
-                this.paths.TwoWayDynamicMap(
+            // Underlying models (pointless to DI these for such a small application).
+            var paths = new ObservableCollection<AddedPath>();
+            var selection = new ObservableCollection<AddedPath>();
+            var commandController = new CommandController();
+
+            // Wireup models to commands and views. Ignoring IDisposible cleanup due to app
+            // size.
+            this.Paths = 
+                paths.TwoWayDynamicMap(
                     pathModel => pathModel.AddedPathtoAddedPathView(),
                     pathView => pathView.AddedPath).Item1;
             
-            this.SelectionView = 
-                this.selection.TwoWayDynamicMap(
+            this.Selection = 
+                selection.TwoWayDynamicMap(
                     pathModel => pathModel.AddedPathtoAddedPathView(),
                     pathView => pathView.AddedPath).Item1;
 
-            FHelpers.PathListToButtonText(this.paths)
-                .Subscribe(newButtonText =>
-                {
-                    this.ButtonText = newButtonText;
-                    PropertyChanged.Raise(this, "ButtonText");
-                });
+            FHelpers.PathListToButtonText(paths)
+                .Subscribe(newButtonText => this.ButtonText = newButtonText);
 
-            // File list visibility
-            this.ShowFileList = Visibility.Hidden;
-            PathsView.CollectionChanged += (s, e) =>
+            Paths.CollectionChanged += (s, e) =>
             {
-                var newVisibility = PathsView.Count > 0 ? Visibility.Visible : Visibility.Hidden;
-                this.ShowFileList = newVisibility;
-                PropertyChanged.Raise(this, "ShowFileList");
+                this.ShowHelpOverlay = Paths.Count == 0 ? Visibility.Visible : Visibility.Hidden;
             };
 
-            // Commands.
-            this.AddDirectory = new AddDirectory(this.paths, this.selection);
-            this.AddFile = new AddFile(this.paths, this.selection);
-            this.PerformMerge = new PerformMerge(this.paths);
-            this.RemoveSelected = new RemoveSelected(this.paths, this.selection);
+            // Commands Model.
+            this.Undo = new Undo(commandController);
+            this.Redo = new Redo(commandController);
+            this.AddDirectory = new AddDirectory(paths, selection, commandController);
+            this.AddFile = new AddFile(paths, selection, commandController);
+            this.PerformMerge = new PerformMerge(paths);
+            this.RemoveSelected = new RemoveSelected(paths, selection, commandController);
         }
 
-        public ObservableCollection<AddedPathView> PathsView { get; private set; }
-        public ObservableCollection<AddedPathView> SelectionView { get; private set; }
+        public ObservableCollection<AddedPathView> Paths { get; private set; }
+        public ObservableCollection<AddedPathView> Selection { get; private set; }
 
-        public string ButtonText { get; private set; }
+        private string buttonText = "";
+        public string ButtonText
+        {
+            get { return this.buttonText; }
+            set
+            {
+                this.buttonText = value;
+                PropertyChanged.Raise(this, "ButtonText");
+            }
+        }
 
-        public Visibility ShowFileList { get; private set; }
+        private Visibility showHelpOverlay = Visibility.Visible;
+        public Visibility ShowHelpOverlay
+        {
+            get { return this.showHelpOverlay; }
+            set
+            {
+                this.showHelpOverlay = value;
+                PropertyChanged.Raise(this, "ShowHelpOverlay");
+            }
+        }
 
+        public ICommand Undo { get; private set; }
+        public ICommand Redo { get; private set; }
         public ICommand AddDirectory { get; private set; }
         public ICommand AddFile { get; private set; }
         public ICommand RemoveSelected { get; private set; }

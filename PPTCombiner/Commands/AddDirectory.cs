@@ -11,11 +11,13 @@ namespace PPTCombiner.Commands
     {
         private readonly ObservableCollection<AddedPath> addedPaths;
         private readonly ObservableCollection<AddedPath> appSelection;
+        private readonly ICommandInvoker commandInvoker;
 
-        public AddDirectory(ObservableCollection<AddedPath> addedPaths, ObservableCollection<AddedPath> appSelection)
+        public AddDirectory(ObservableCollection<AddedPath> addedPaths, ObservableCollection<AddedPath> appSelection, ICommandInvoker commandInvoker)
         {
             this.addedPaths = addedPaths;
             this.appSelection = appSelection;
+            this.commandInvoker = commandInvoker;
         }
 
         public bool CanExecute(object parameter)
@@ -34,9 +36,22 @@ namespace PPTCombiner.Commands
             {
                 if(Directory.Exists(dialog.SelectedPath))
                 {
-                    var selectedPath = PathHelpers.FindValidFilesInPath(dialog.SelectedPath);
-                    addedPaths.Add(selectedPath);
-                    appSelection.Add(selectedPath);
+                    // ForwardCommand
+                    var selectedPath = PathHelpers.PathToAddedPath(dialog.SelectedPath);
+
+                    var command = PPTCombiner.FS.Commands.CreateReversibleCommand(
+                        () =>
+                        {
+                            addedPaths.Add(selectedPath);
+                            appSelection.Add(selectedPath);
+                        },
+                        () =>
+                        {
+                            addedPaths.Remove(selectedPath);
+                            appSelection.Remove(selectedPath);
+                        });
+
+                    commandInvoker.InvokeCommand(command);
                 }
             }
         }

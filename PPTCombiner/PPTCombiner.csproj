@@ -111,7 +111,9 @@
     <Compile Include="Commands\AddDirectory.cs" />
     <Compile Include="Commands\AddFile.cs" />
     <Compile Include="Commands\PerformMerge.cs" />
+    <Compile Include="Commands\Redo.cs" />
     <Compile Include="Commands\RemoveSelected.cs" />
+    <Compile Include="Commands\Undo.cs" />
     <Compile Include="Helpers.cs" />
     <Compile Include="MainWindow.xaml.cs">
       <DependentUpon>MainWindow.xaml</DependentUpon>
@@ -163,6 +165,18 @@
     <Resource Include="FodyWeavers.xml">
       <SubType>Designer</SubType>
     </Resource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="img\Undo_16x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="img\Redo_16x.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="img\base_cursor.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="img\drag-n-drop-99.png" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="Fody.targets" Condition=" '$(Configuration)' == 'Release' " />

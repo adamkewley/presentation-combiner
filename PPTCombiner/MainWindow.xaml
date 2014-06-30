@@ -11,17 +11,32 @@
             <Setter Property="Padding" Value="10,10,10,10" />
         </Style>
         
-        <Style TargetType="ListBox">
-            <Setter Property="ItemTemplate">
+        <Style TargetType="ListView">            
+            <Setter Property="View">
                 <Setter.Value>
-                    <DataTemplate>
-                        <WrapPanel>
-                            <Image Width="25" Height="25" Source="{Binding Icon}" Margin="5,5,15,5" />
-                            <TextBlock Text="{Binding Name}" Margin="0,0,15,0" />
-                            <TextBlock Text="Slides: " />
-                            <TextBlock Text="{Binding ValidFileCount}" />
-                        </WrapPanel>                        
-                    </DataTemplate>
+                    <GridView>
+                        <GridViewColumn Header="Type">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <Image Width="25" Height="25" Source="{Binding Icon}" Margin="5,5,15,5" />
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="Name" Width="200">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding Name}" Margin="0,0,15,0" Width="Auto" />
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="File Count">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate>
+                                    <TextBlock Text="{Binding ValidFileCount}" />
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                    </GridView>
                 </Setter.Value>
             </Setter>
         </Style>
@@ -29,6 +44,8 @@
     
     <Window.InputBindings>
         <KeyBinding Command="{Binding RemoveSelected}" Gesture="DEL" />
+        <KeyBinding Command="{Binding Undo}" Gesture="CTRL+Z" />
+        <KeyBinding Command="{Binding Redo}" Gesture="CTRL+Y" />
     </Window.InputBindings>
     
     <Grid>
@@ -40,24 +57,29 @@
             <ColumnDefinition/>
             <ColumnDefinition Width="139"/>
         </Grid.ColumnDefinitions>
-        <TextBlock 
+
+        <ListView x:Name="AddedPathsList"
+            Margin="10,10,10,10"
+            VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
+            ItemsSource="{Binding Paths}" 
+            SelectionChanged="AddedPathsList_SelectionChanged" SelectionMode="Extended" />
+        
+        <!-- Overlay when list is empty -->
+        <Border
+            Visibility="{Binding ShowHelpOverlay}"
             Margin="10,10,10,10" 
-            VerticalAlignment="Stretch" 
-            HorizontalAlignment="Stretch"
-            TextAlignment="Center" 
-            FontSize="24"
-            TextWrapping="Wrap"
-            Background="LightBlue"
-            Padding="10,10,10,10">Drag files and folders into the application or add them with the buttons to the right.</TextBlock>
-        <ListBox x:Name="AddedPathsList"
-			Margin="10,10,10,10" VerticalAlignment="Stretch" HorizontalAlignment="Stretch" 
-			ItemsSource="{Binding PathsView}" SelectionChanged="AddedPathsList_SelectionChanged" SelectionMode="Extended"
-            Visibility="{Binding ShowFileList}" />
+            VerticalAlignment="Stretch">
+            <StackPanel VerticalAlignment="Center">
+                <Image Stretch="None" Source="img\drag-n-drop-99.png" />
+                <TextBlock TextAlignment="Center" FontSize="20" TextWrapping="Wrap">Drag in a file or folder to get started or use the buttons provided.</TextBlock>
+            </StackPanel>            
+        </Border>    
+        
         <!-- Column 2 -->
         <StackPanel Grid.Column="1" Margin="0,10,10,0">
             <!-- Add dir -->
             <Border CornerRadius="2" BorderThickness="1" BorderBrush="Black">
-                <Button Content="Add Directory" HorizontalContentAlignment="Right" VerticalAlignment="Top" Command="{Binding AddDirectory}" Grid.Column="1" BorderThickness="0" ToolTip="Add a presentation folder to merge">
+                <Button Content="Add Directory" HorizontalContentAlignment="Right" VerticalAlignment="Top" Command="{Binding AddDirectory}" Grid.Column="1" BorderThickness="0" ToolTip="Add a Directory Containing Presentation Files">
                     <Button.Background>
                         <ImageBrush ImageSource="img\folder_Open_32xLG.png" Stretch="Uniform" AlignmentX="Left"/>
                     </Button.Background>
@@ -67,7 +89,7 @@
             
             <!-- Add file -->
             <Border CornerRadius="2" BorderThickness="1" BorderBrush="Black" Margin="0,5,0,0">
-                <Button Content="Add File" HorizontalContentAlignment="Right" VerticalAlignment="Top" Command="{Binding AddFile}" Grid.Column="1" BorderThickness="0" ToolTip="Add a presentation file to merge">
+                <Button Content="Add File" HorizontalContentAlignment="Right" VerticalAlignment="Top" Command="{Binding AddFile}" Grid.Column="1" BorderThickness="0" ToolTip="Add a Presentation File to Merge">
                     <Button.Background>
                         <ImageBrush ImageSource="img\NewWindow_6277.png" Stretch="Uniform" AlignmentX="Left"/>
                     </Button.Background>
@@ -76,12 +98,27 @@
 
             <!-- Delete selection -->
             <Border CornerRadius="2" BorderThickness="1" BorderBrush="Black" Margin="0,5,0,0">
-                <Button Content="Delete Selection" HorizontalContentAlignment="Right" VerticalAlignment="Top" Command="{Binding RemoveSelected}" Grid.Column="1" BorderThickness="0" ToolTip="Delete the selected presentation file.">
+                <Button Content="Delete Selection" HorizontalContentAlignment="Right" VerticalAlignment="Top" Command="{Binding RemoveSelected}" Grid.Column="1" BorderThickness="0" ToolTip="Delete the Current Selection (DEL)">
                     <Button.Background>
                         <ImageBrush ImageSource="img\action_Cancel_16xLG.png" Stretch="Uniform" AlignmentX="Left"/>
                     </Button.Background>
                 </Button>
             </Border>
+            
+            <!-- Undo Redo -->
+            <WrapPanel Margin="0,10,0,0" HorizontalAlignment="Center">
+                <Button Command="{Binding Undo}" Margin="5,5,5,5">
+                    <Button.Background>
+                        <ImageBrush ImageSource="img\Undo_16x.png" Stretch="Uniform" AlignmentX="Left"/>
+                    </Button.Background>
+                </Button>
+                <Button Command="{Binding Redo}" Margin="5,5,5,5">
+                    <Button.Background>
+                        <ImageBrush ImageSource="img\Redo_16x.png" Stretch="Uniform" AlignmentX="Left"/>
+                    </Button.Background>
+                </Button>
+            </WrapPanel>
+            
         </StackPanel>
 
         <Button Content="{Binding ButtonText}" HorizontalAlignment="Right" Margin="0, 0, 10, 0" VerticalAlignment="Top" Height="40" Background="{DynamicResource {x:Static SystemColors.MenuHighlightBrushKey}}" Command="{Binding PerformMerge}" Grid.Row="1" />

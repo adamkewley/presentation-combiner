@@ -10,12 +10,14 @@ namespace PPTCombiner.Commands
     {
         private readonly ObservableCollection<AddedPath> addedPaths;
         private readonly ObservableCollection<AddedPath> selectedPaths;
+        private readonly ICommandInvoker commandInvoker;
 
-        public RemoveSelected(ObservableCollection<AddedPath> addedPaths, ObservableCollection<AddedPath> selectedPaths)
+        public RemoveSelected(ObservableCollection<AddedPath> addedPaths, ObservableCollection<AddedPath> selectedPaths, ICommandInvoker commandInvoker)
         {
             this.addedPaths = addedPaths;
             this.selectedPaths = selectedPaths;
             this.selectedPaths.CollectionChanged += (s, e) => CanExecuteChanged.Raise(this, EventArgs.Empty);
+            this.commandInvoker = commandInvoker;
         }
 
         public bool CanExecute(object parameter)
@@ -29,11 +31,25 @@ namespace PPTCombiner.Commands
         {
             var selectedBuffer = new List<AddedPath>(selectedPaths);
 
-            foreach(AddedPath selectedPath in selectedBuffer)
-            {
-                this.selectedPaths.Remove(selectedPath);
-                this.addedPaths.Remove(selectedPath);
-            }
+            var command = PPTCombiner.FS.Commands.CreateReversibleCommand(
+                    () =>
+                    {
+                        foreach (AddedPath selectedPath in selectedBuffer)
+                        {
+                            this.selectedPaths.Remove(selectedPath);
+                            this.addedPaths.Remove(selectedPath);
+                        }
+                    },
+                    () =>
+                    {
+                        foreach (AddedPath selectedPath in selectedBuffer)
+                        {
+                            this.addedPaths.Add(selectedPath);
+                            this.selectedPaths.Add(selectedPath);
+                        }
+                    });
+
+            this.commandInvoker.InvokeCommand(command);
         }
     }
 }
