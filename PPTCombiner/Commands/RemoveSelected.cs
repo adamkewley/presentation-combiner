@@ -16,8 +16,9 @@ namespace PPTCombiner.Commands
         {
             this.addedPaths = addedPaths;
             this.selectedPaths = selectedPaths;
-            this.selectedPaths.CollectionChanged += (s, e) => CanExecuteChanged.Raise(this, EventArgs.Empty);
             this.commandInvoker = commandInvoker;
+
+            this.selectedPaths.CollectionChanged += (s, e) => CanExecuteChanged.Raise(this, EventArgs.Empty);
         }
 
         public bool CanExecute(object parameter)
