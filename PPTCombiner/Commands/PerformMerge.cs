@@ -29,6 +29,8 @@ namespace PPTCombiner.Commands
 
         public void Execute(object parameter)
         {
+            //TODO Interop with Microsoft.Office.Interop.PowerPoint
+
             var validFiles = addedPaths
                 .SelectMany(PathHelpers.ExtractMergeTargets)
                 .Select(x => x.AddedPath);

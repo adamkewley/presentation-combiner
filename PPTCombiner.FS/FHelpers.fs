@@ -4,9 +4,17 @@ open System.Collections.Specialized
 open System.Collections.ObjectModel
 open System
 open System.IO
-open System.Reactive.Subjects
 
-// Helper functions for UI etc.
+/// <summary>
+/// A formatted AddedPath type for UI binding.
+/// </summary>
+type AddedPathView = 
+    { Icon : string
+      Name : string
+      ValidFileCount : int
+      AddedPath : AddedPath }
+
+[<System.Runtime.CompilerServices.Extension>]
 module FHelpers = 
     /// <summary>
     /// Produces dynamic helper text that indicates the total number of slides found.
@@ -21,40 +29,33 @@ module FHelpers =
 
         addedFilesList.CollectionChanged 
         |> Observable.map (fun _ ->
-                match countTotalValidFiles addedFilesList with
-                | 0 -> "Nothing to merge."
-                | 1 -> "Open one file."
-                | x -> "Merge " + x.ToString() + " files.")
-        |> Observable.immediateValue "Nothing to merge."
+            match countTotalValidFiles addedFilesList with
+            | 0 -> "Nothing to merge."
+            | 1 -> "Open one file."
+            | x -> "Merge " + x.ToString() + " files.")
+        |> Observable.immediate "Nothing to merge."
 
-/// <summary>
-/// A formatted AddedPath type for UI binding.
-/// </summary>
-type AddedPathView = 
-    { Icon : string
-      Name : string
-      ValidFileCount : int
-      AddedPath : AddedPath }
-
-[<System.Runtime.CompilerServices.Extension>]
-module FExtensionMethods = 
     /// <summary>
     /// Map an AddedPath type (model) to an AddedPathView (ui binding model).
     /// </summary>
     /// <param name="pth">The AddedPath to map.</param>
-    let private addedPathtoAddedPathView pth = 
+    let internal addedPathtoAddedPathView pth = 
+
         let icon =  
             match pth.PathType with
             | ValidFile -> "img\\NewWindow_6277.png"
-            | Folder -> "img\\folder_Open_32xLG.png"
-            | InvalidFile | EmptyFolder | InvalidPath -> "img\\action_Cancel_16xLG.png"
-        let name = Path.GetFileName(pth.AddedPath)
+            | Folder    -> "img\\folder_Open_32xLG.png"
+            | _         -> "img\\action_Cancel_16xLG.png"
 
-        let fileCount = match pth.PathType with
-                        | InvalidFile -> 0
-                        | _ -> pth.ValidFileCount
+        let name =
+            match pth.PathType with
+            | InvalidPath -> pth.AddedPath
+            | _           -> Path.GetFileName(pth.AddedPath)
 
-        { Icon = icon; Name = name; ValidFileCount = fileCount; AddedPath = pth }
+        { Icon = icon 
+          Name = name 
+          ValidFileCount = pth.ValidFileCount 
+          AddedPath = pth }
 
     // C# extensions
 

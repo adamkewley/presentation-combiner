@@ -15,10 +15,8 @@ type AddedPath =
       ContainedPaths : AddedPath seq }
 
 module PathHelpers =
-    open System.Collections.ObjectModel
     open System
     open System.IO
-    open System.Reactive.Subjects
 
     /// <summary>
     /// A list of valid merge targets that Microsoft PowerPoint can insert into other presentations.
@@ -58,41 +56,43 @@ module PathHelpers =
     /// Find valid file(s) for merging at a path. Can be a directory or a filepath.
     /// </summary>
     /// <param name="path">The path to search for valid merge targets.</param>
-    let rec FindValidFilesInPath (path : string) : AddedPath =
+    let rec PathToAddedPath (path : string) : AddedPath =
+        let sanitizedPath = Path.GetFullPath(path)
+
         if Directory.Exists path then
             // It's a directory...
-            let validFiles = GetValidFilesInDirectory path
+            let validFiles = GetValidFilesInDirectory sanitizedPath
             
             if validFiles = Seq.empty then 
                 // ... but contains no valid files.
-                { AddedPath = path
+                { AddedPath = sanitizedPath
                   PathType = EmptyFolder
                   ValidFileCount = 0
                   ContainedPaths = Seq.empty }
             else
                 // ... and contains at least one valid file.
-                { AddedPath = path
+                { AddedPath = sanitizedPath
                   PathType = Folder
                   ValidFileCount = Seq.length validFiles
-                  ContainedPaths = Seq.map FindValidFilesInPath validFiles }
+                  ContainedPaths = Seq.map PathToAddedPath validFiles }
 
         else if File.Exists path then
             // It's a file...
             if IsAValidMergeTarget path then
                 // ... which is valid.
-                { AddedPath = path
+                { AddedPath = sanitizedPath
                   PathType = ValidFile
                   ValidFileCount = 1
                   ContainedPaths = Seq.empty }
             else
                 // ... which is invalid.
-                { AddedPath = path
+                { AddedPath = sanitizedPath
                   PathType = InvalidFile
                   ValidFileCount = 0
                   ContainedPaths = Seq.empty }
         else
             // It's neither a file or a directory. An invalid path.
-            { AddedPath = path
+            { AddedPath = sanitizedPath
               PathType = InvalidPath
               ValidFileCount = 0
               ContainedPaths = Seq.empty }

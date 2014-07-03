@@ -75,10 +75,10 @@ module internal ObservableCollection =
 
         let destination = ObservableCollection<'b>()
 
-        // Mutable lock that both source and destination close over in their subscriptions.
-        // They will check the lock before updating and will not update if the lock is true.
-        // The lock is active when one of the paired collections is being updated to prevent 
-        // the opposite collection responding to the updates in a circular fashion.
+        (* Mutable lock that both source and destination close over in their subscriptions.
+           They will check the lock before updating and will not update if the lock is true.
+           The lock is active when one of the paired collections is being updated to prevent 
+           the opposite collection responding to the updates in a circular fashion. *)
         let locked = ref(false)
 
         let attachHandler f (collectionA : ObservableCollection<_>) (collectionB : ObservableCollection<_>) =
@@ -107,12 +107,12 @@ module OcExtensions =
     /// <param name="f"></param>
     /// <param name="e"></param>
     /// <param name="destination"></param>
-    let MirrorChangesHandler(f, e, destination) =
-        ObservableCollection.MapChangesToList (FSharpFunc.FromConverter(f)) e destination
+    let MapChangesToListT(mapper, changes, targetList) =
+        ObservableCollection.MapChangesToList (FSharpFunc.FromConverter(mapper)) changes targetList
 
     // TODO
-    let GenericMirrorChangesHandler(f, e, destination)=
-        ObservableCollection.MapChangesToGenericList (FSharpFunc.FromConverter(f)) e destination
+    let MapChangesToList(mapper, changes, targetList)=
+        ObservableCollection.MapChangesToGenericList (FSharpFunc.FromConverter(mapper)) changes targetList
 
     /// <summary>
     /// Create a derived ObservableCollection which mirrors changes in the source collection.
@@ -120,14 +120,14 @@ module OcExtensions =
     /// <param name="sourceObservableCollection">The source collection to mirror.</param>
     /// <param name="f">The mapping function.</param>
     [<System.Runtime.CompilerServices.Extension>]
-    let DynamicMap(sourceObservableCollection, f) = 
-        let oc, dispose = ObservableCollection.DynamicMap (FSharpFunc.FromConverter(f)) sourceObservableCollection
+    let DynamicMap(sourceObservableCollection, mapper) = 
+        let oc, dispose = ObservableCollection.DynamicMap (FSharpFunc.FromConverter(mapper)) sourceObservableCollection
         Tuple<_,_>(oc, dispose)
 
     // TODO
     [<System.Runtime.CompilerServices.Extension>]
-    let TwoWayDynamicMap(sourceOc, f, g) = 
-        let oc, dispose = ObservableCollection.TwoWayDynamicMap (FSharpFunc.FromConverter(f)) (FSharpFunc.FromConverter(g)) sourceOc
+    let TwoWayDynamicMap(sourceObservableCollection, forwardMapper, backwardMapper) = 
+        let oc, dispose = ObservableCollection.TwoWayDynamicMap (FSharpFunc.FromConverter(forwardMapper)) (FSharpFunc.FromConverter(backwardMapper)) sourceObservableCollection
         Tuple<_,_>(oc, dispose)
 
 
@@ -138,7 +138,7 @@ module Observable =
     /// to the underlying observable.
     /// </summary>
     /// <param name="x">The immediate value produced upon subscription to the observable.</param>
-    let immediateValue x (e : IObservable<_>) = 
+    let immediate x (e : IObservable<_>) = 
         { new IObservable<'T> with 
             member this.Subscribe(observer) = 
                 observer.OnNext(x)
