@@ -29,30 +29,41 @@ namespace PPTCombiner.Commands
 
         public void Execute(object parameter)
         {
-            FileDialog dialog = new OpenFileDialog();
-            DialogResult result = dialog.ShowDialog();
-
-            if(result == DialogResult.OK)
+            if(parameter is string)
             {
-                if(File.Exists(dialog.FileName))
-                {
-                    // ForwardCommand
-                    var selectedPath = PathHelpers.PathToAddedPath(dialog.FileName);
+                this.addFile(parameter as string);
+            }
+            else
+            {
+                FileDialog dialog = new OpenFileDialog();
+                DialogResult result = dialog.ShowDialog();
 
-                    var command = PPTCombiner.FS.Commands.CreateReversibleCommand(
+                if(result == DialogResult.OK)
+                {
+                    this.addFile(dialog.FileName);
+                }
+            }
+        }
+
+        private void addFile(string filePath)
+        {
+            if(File.Exists(filePath))
+            {
+                AddedPath path = PathHelpers.PathToAddedPath(filePath);
+                ReversibleCommand command =
+                    PPTCombiner.FS.Commands.CreateReversibleCommand(
                         () =>
                         {
-                            addedPaths.Add(selectedPath);
-                            appSelection.Add(selectedPath);
+                            addedPaths.Add(path);
+                            appSelection.Add(path);
                         },
                         () =>
                         {
-                            addedPaths.Remove(selectedPath);
-                            appSelection.Remove(selectedPath);
+                            addedPaths.Remove(path);
+                            appSelection.Remove(path);
                         });
 
-                    commandInvoker.InvokeCommand(command);
-                }
+                commandInvoker.InvokeCommand(command);
             }
         }
     }

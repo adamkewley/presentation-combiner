@@ -29,30 +29,42 @@ namespace PPTCombiner.Commands
 
         public void Execute(object parameter)
         {
-            var dialog = new FolderBrowserDialog();
-            DialogResult result = dialog.ShowDialog();
-
-            if(result == DialogResult.OK)
+            // if a path was passed as a parameter
+            if(parameter is string)
             {
-                if(Directory.Exists(dialog.SelectedPath))
-                {
-                    // ForwardCommand
-                    var selectedPath = PathHelpers.PathToAddedPath(dialog.SelectedPath);
+                this.addDirectory(parameter as string);
+            }
+            else
+            {
+                var dialog = new FolderBrowserDialog();
+                DialogResult result = dialog.ShowDialog();
 
-                    var command = PPTCombiner.FS.Commands.CreateReversibleCommand(
+                if (result == DialogResult.OK)
+                {
+                    this.addDirectory(dialog.SelectedPath);
+                }
+            }
+        }
+
+        private void addDirectory(string directoryPath)
+        {
+            if(Directory.Exists(directoryPath))
+            {
+                AddedPath path = PathHelpers.PathToAddedPath(directoryPath);
+                ReversibleCommand command =
+                    PPTCombiner.FS.Commands.CreateReversibleCommand(
                         () =>
                         {
-                            addedPaths.Add(selectedPath);
-                            appSelection.Add(selectedPath);
+                            addedPaths.Add(path);
+                            appSelection.Add(path);
                         },
                         () =>
                         {
-                            addedPaths.Remove(selectedPath);
-                            appSelection.Remove(selectedPath);
+                            addedPaths.Remove(path);
+                            appSelection.Remove(path);
                         });
 
-                    commandInvoker.InvokeCommand(command);
-                }
+                commandInvoker.InvokeCommand(command);
             }
         }
     }

@@ -1,5 +1,6 @@
 ﻿using PPTCombiner.FS;
 using System;
+using System.IO;
 using System.Windows;
 
 namespace PPTCombiner
@@ -40,14 +41,15 @@ namespace PPTCombiner
         #region Drag & Drop
 
         private void ListBox_Drop(object sender, DragEventArgs e)
-        {
-            var addedPath = 
-                PathHelpers
-                    .PathToAddedPath(draggedPath)
-                    .AddedPathtoAddedPathView();
-
-            viewModel.Paths.Add(addedPath);
-            viewModel.Selection.Add(addedPath); // Select the dragged item.
+        {            
+            if(Directory.Exists(draggedPath))
+            {
+                this.viewModel.AddDirectory.Execute(draggedPath);
+            }
+            else if(File.Exists(draggedPath))
+            {
+                this.viewModel.AddFile.Execute(draggedPath);
+            }
 
             e.Handled = true;
         }
