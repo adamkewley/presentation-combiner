@@ -36,6 +36,7 @@ namespace PPTCombiner.Commands
             else
             {
                 FileDialog dialog = new OpenFileDialog();
+                dialog.Filter = FHelpers.DialogPaths;
                 DialogResult result = dialog.ShowDialog();
 
                 if(result == DialogResult.OK)

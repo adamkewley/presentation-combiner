@@ -21,7 +21,7 @@ module PathHelpers =
     /// <summary>
     /// A list of valid merge targets that Microsoft PowerPoint can insert into other presentations.
     /// </summary>
-    let private ValidExtensions = 
+    let ValidExtensions = 
         [ "*.ppt" 
           "*.pptx" 
           "*.pptm" 

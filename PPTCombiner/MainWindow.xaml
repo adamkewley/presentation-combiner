@@ -6,6 +6,13 @@
 		DragOver="ListBox_DragOver"
 		Drop="ListBox_Drop" 
         AllowDrop="True">
+
+    <Window.InputBindings>
+        <KeyBinding Command="{Binding RemoveSelected}" Gesture="DEL" />
+        <KeyBinding Command="{Binding Undo}" Gesture="CTRL+Z" />
+        <KeyBinding Command="{Binding Redo}" Gesture="CTRL+Y" />
+    </Window.InputBindings>
+
     <Window.Resources>
         <Style TargetType="Button">
             <Setter Property="Padding" Value="10,10,10,10" />
@@ -42,12 +49,6 @@
         </Style>
     </Window.Resources>
     
-    <Window.InputBindings>
-        <KeyBinding Command="{Binding RemoveSelected}" Gesture="DEL" />
-        <KeyBinding Command="{Binding Undo}" Gesture="CTRL+Z" />
-        <KeyBinding Command="{Binding Redo}" Gesture="CTRL+Y" />
-    </Window.InputBindings>
-    
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="*" />
@@ -57,29 +58,38 @@
             <ColumnDefinition/>
             <ColumnDefinition Width="139"/>
         </Grid.ColumnDefinitions>
-
+        
+        <!-- Main List View -->
         <ListView x:Name="AddedPathsList"
             Margin="10,10,10,10"
             VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
             ItemsSource="{Binding Paths}" 
             SelectionChanged="AddedPathsList_SelectionChanged" SelectionMode="Extended" />
         
-        <!-- Overlay when list is empty -->
+        <!-- Overlay when Main List is Empty -->
         <Border
             Visibility="{Binding ShowHelpOverlay}"
             Margin="10,10,10,10" 
             VerticalAlignment="Stretch">
+            
             <StackPanel VerticalAlignment="Center">
                 <Image Stretch="None" Source="img\drag-n-drop-99.png" />
-                <TextBlock TextAlignment="Center" FontSize="20" TextWrapping="Wrap">Drag in a file or folder to get started or use the buttons provided.</TextBlock>
+                <TextBlock TextAlignment="Center" FontSize="20" TextWrapping="Wrap">
+                    Drag in a file or folder to get started or use the buttons provided.
+                </TextBlock>
             </StackPanel>            
         </Border>    
         
         <!-- Column 2 -->
         <StackPanel Grid.Column="1" Margin="0,10,10,0">
-            <!-- Add dir -->
+            <!-- Add Directory -->
             <Border CornerRadius="2" BorderThickness="1" BorderBrush="Black">
-                <Button Content="Add Directory" HorizontalContentAlignment="Right" VerticalAlignment="Top" Command="{Binding AddDirectory}" Grid.Column="1" BorderThickness="0" ToolTip="Add a Directory Containing Presentation Files">
+                <Button Content="Add Directory" 
+                        HorizontalContentAlignment="Right" 
+                        VerticalAlignment="Top" 
+                        Command="{Binding AddDirectory}" 
+                        Grid.Column="1" BorderThickness="0" 
+                        ToolTip="Add a Directory Containing Presentation Files">
                     <Button.Background>
                         <ImageBrush ImageSource="img\folder_Open_32xLG.png" Stretch="Uniform" AlignmentX="Left"/>
                     </Button.Background>
@@ -89,7 +99,11 @@
             
             <!-- Add file -->
             <Border CornerRadius="2" BorderThickness="1" BorderBrush="Black" Margin="0,5,0,0">
-                <Button Content="Add File" HorizontalContentAlignment="Right" VerticalAlignment="Top" Command="{Binding AddFile}" Grid.Column="1" BorderThickness="0" ToolTip="Add a Presentation File to Merge">
+                <Button Content="Add File" 
+                        HorizontalContentAlignment="Right" VerticalAlignment="Top" 
+                        Command="{Binding AddFile}" 
+                        Grid.Column="1" BorderThickness="0" 
+                        ToolTip="Add a Presentation File to Merge">
                     <Button.Background>
                         <ImageBrush ImageSource="img\NewWindow_6277.png" Stretch="Uniform" AlignmentX="Left"/>
                     </Button.Background>
@@ -97,8 +111,14 @@
             </Border>
 
             <!-- Delete selection -->
-            <Border CornerRadius="2" BorderThickness="1" BorderBrush="Black" Margin="0,5,0,0">
-                <Button Content="Delete Selection" HorizontalContentAlignment="Right" VerticalAlignment="Top" Command="{Binding RemoveSelected}" Grid.Column="1" BorderThickness="0" ToolTip="Delete the Current Selection (DEL)">
+            <Border CornerRadius="2" BorderThickness="1" BorderBrush="Black" >
+                <Button Content="Delete Selection" 
+                        HorizontalContentAlignment="Right" VerticalAlignment="Top" 
+                        Command="{Binding RemoveSelected}" 
+                        Grid.Column="1" 
+                        BorderThickness="0" 
+                        ToolTip="Delete the Current Selection (DEL)"
+                        Margin="0,5,0,0">
                     <Button.Background>
                         <ImageBrush ImageSource="img\action_Cancel_16xLG.png" Stretch="Uniform" AlignmentX="Left"/>
                     </Button.Background>
@@ -107,12 +127,16 @@
             
             <!-- Undo Redo -->
             <WrapPanel Margin="0,10,0,0" HorizontalAlignment="Center">
-                <Button Command="{Binding Undo}" Margin="5,5,5,5">
+                
+                <!-- Undo -->
+                <Button Command="{Binding Undo}" Margin="5,5,5,5" ToolTip="Undo the Last Operation (CTRL+Z)">
                     <Button.Background>
                         <ImageBrush ImageSource="img\Undo_16x.png" Stretch="Uniform" AlignmentX="Left"/>
                     </Button.Background>
                 </Button>
-                <Button Command="{Binding Redo}" Margin="5,5,5,5">
+                
+                <!-- Redo -->
+                <Button Command="{Binding Redo}" Margin="5,5,5,5" ToolTip="Redo the Last Undone Operation (CTRL+Y)">
                     <Button.Background>
                         <ImageBrush ImageSource="img\Redo_16x.png" Stretch="Uniform" AlignmentX="Left"/>
                     </Button.Background>
@@ -121,6 +145,14 @@
             
         </StackPanel>
 
-        <Button Content="{Binding ButtonText}" HorizontalAlignment="Right" Margin="0, 0, 10, 0" VerticalAlignment="Top" Height="40" Background="{DynamicResource {x:Static SystemColors.MenuHighlightBrushKey}}" Command="{Binding PerformMerge}" Grid.Row="1" />
+        <Button 
+            Content="{Binding ButtonText}" 
+            HorizontalAlignment="Right" 
+            Margin="0, 0, 10, 0" 
+            VerticalAlignment="Top" 
+            Height="40" 
+            Background="{DynamicResource {x:Static SystemColors.MenuHighlightBrushKey}}" 
+            Command="{Binding PerformMerge}" Grid.Row="1"
+            ToolTip="Merge all Presentation Files Added and Open PowerPoint"/>
     </Grid>
 </Window>

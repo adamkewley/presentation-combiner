@@ -16,6 +16,8 @@ type AddedPathView =
 
 [<System.Runtime.CompilerServices.Extension>]
 module FHelpers = 
+    open System
+
     /// <summary>
     /// Produces dynamic helper text that indicates the total number of slides found.
     /// </summary>
@@ -56,6 +58,13 @@ module FHelpers =
           Name = name 
           ValidFileCount = pth.ValidFileCount 
           AddedPath = pth }
+
+    let DialogPaths =
+        let allPaths =
+            PathHelpers.ValidExtensions
+            |> Seq.map (fun extension -> extension + ";")
+            |> Seq.fold (+) ""
+        String.Format("Presentation Files ({0})|{0}", allPaths)
 
     // C# extensions
 
