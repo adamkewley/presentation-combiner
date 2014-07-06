@@ -1,4 +1,4 @@
-﻿using PPTCombiner.FS;
+﻿using PresentationCombiner.FS;
 using System;
 using System.Collections.ObjectModel;
 using System.Diagnostics;
@@ -7,7 +7,7 @@ using System.Runtime.InteropServices;
 using System.Windows;
 using System.Windows.Input;
 
-namespace PPTCombiner.Commands
+namespace PresentationCombiner.Commands
 {
     internal sealed class PerformMerge : ICommand
     {

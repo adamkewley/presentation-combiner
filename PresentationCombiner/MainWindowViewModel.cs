@@ -1,12 +1,12 @@
-﻿using PPTCombiner.Commands;
-using PPTCombiner.FS;
+﻿using PresentationCombiner.Commands;
+using PresentationCombiner.FS;
 using System;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Input;
 
-namespace PPTCombiner
+namespace PresentationCombiner
 {
     sealed class MainWindowViewModel : INotifyPropertyChanged
     {

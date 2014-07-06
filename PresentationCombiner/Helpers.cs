@@ -1,7 +1,7 @@
 ﻿using System;
 using System.ComponentModel;
 
-namespace PPTCombiner
+namespace PresentationCombiner
 {
     public static class Helpers
     {

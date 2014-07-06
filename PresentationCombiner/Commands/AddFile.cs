@@ -1,11 +1,11 @@
-﻿using PPTCombiner.FS;
+﻿using PresentationCombiner.FS;
 using System;
 using System.Collections.ObjectModel;
 using System.IO;
 using System.Windows.Forms;
 using System.Windows.Input;
 
-namespace PPTCombiner.Commands
+namespace PresentationCombiner.Commands
 {
     internal sealed class AddFile : ICommand
     {
@@ -52,7 +52,7 @@ namespace PPTCombiner.Commands
             {
                 AddedPath path = PathHelpers.PathToAddedPath(filePath);
                 ReversibleCommand command =
-                    PPTCombiner.FS.Commands.CreateReversibleCommand(
+                    PresentationCombiner.FS.Commands.CreateReversibleCommand(
                         () =>
                         {
                             addedPaths.Add(path);

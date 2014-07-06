@@ -1,8 +1,8 @@
-﻿using PPTCombiner.FS;
+﻿using PresentationCombiner.FS;
 using System;
 using System.Windows.Input;
 
-namespace PPTCombiner.Commands
+namespace PresentationCombiner.Commands
 {
     internal sealed class Redo : ICommand
     {

@@ -1,11 +1,12 @@
-﻿<Window x:Class="PPTCombiner.MainWindow"
+﻿<Window x:Class="PresentationCombiner.MainWindow"
         xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"    
-        Title="PPTCombiner" Height="378" Width="549"         
+        Title="Presentation Combiner" Height="378" Width="549"         
         DragEnter="ListBox_DragEnter"
 		DragOver="ListBox_DragOver"
 		Drop="ListBox_Drop" 
-        AllowDrop="True">
+        AllowDrop="True"
+        Icon="img\application-icon.ico">
 
     <Window.InputBindings>
         <KeyBinding Command="{Binding RemoveSelected}" Gesture="DEL" />

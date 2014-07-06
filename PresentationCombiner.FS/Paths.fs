@@ -1,4 +1,4 @@
-﻿namespace PPTCombiner.FS
+﻿namespace PresentationCombiner.FS
 
 /// <summary>
 /// The type of path added by a user.

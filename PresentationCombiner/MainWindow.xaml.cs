@@ -1,9 +1,9 @@
-﻿using PPTCombiner.FS;
+﻿using PresentationCombiner.FS;
 using System;
 using System.IO;
 using System.Windows;
 
-namespace PPTCombiner
+namespace PresentationCombiner
 {
     /// <summary>
     /// Interaction logic for MainWindow.xaml

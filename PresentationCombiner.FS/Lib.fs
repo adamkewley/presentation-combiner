@@ -1,4 +1,4 @@
-﻿namespace PPTCombiner.FS
+﻿namespace PresentationCombiner.FS
 
 open System
 open System.Collections.Generic

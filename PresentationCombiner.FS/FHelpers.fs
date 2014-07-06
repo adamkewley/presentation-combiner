@@ -1,4 +1,4 @@
-﻿namespace PPTCombiner.FS
+﻿namespace PresentationCombiner.FS
 
 open System.Collections.Specialized
 open System.Collections.ObjectModel

@@ -1,6 +1,6 @@
 ﻿using System.Windows;
 
-namespace PPTCombiner
+namespace PresentationCombiner
 {
     /// <summary>
     /// Interaction logic for App.xaml

@@ -1,10 +1,10 @@
-﻿using PPTCombiner.FS;
+﻿using PresentationCombiner.FS;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.Windows.Input;
 
-namespace PPTCombiner.Commands
+namespace PresentationCombiner.Commands
 {
     internal sealed class RemoveSelected : ICommand
     {
@@ -32,7 +32,7 @@ namespace PPTCombiner.Commands
         {
             var selectedBuffer = new List<AddedPath>(selectedPaths);
 
-            var command = PPTCombiner.FS.Commands.CreateReversibleCommand(
+            var command = PresentationCombiner.FS.Commands.CreateReversibleCommand(
                     () =>
                     {
                         foreach (AddedPath selectedPath in selectedBuffer)

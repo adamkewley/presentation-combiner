@@ -3,9 +3,9 @@ Microsoft Visual Studio Solution File, Format Version 12.00
 # Visual Studio 2013
 VisualStudioVersion = 12.0.30501.0
 MinimumVisualStudioVersion = 10.0.40219.1
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PPTCombiner", "PPTCombiner\PPTCombiner.csproj", "{2062664F-ACF1-48BF-BB30-EEEC564CD3F0}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PresentationCombiner", "PresentationCombiner\PresentationCombiner.csproj", "{2062664F-ACF1-48BF-BB30-EEEC564CD3F0}"
 EndProject
-Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "PPTCombiner.FS", "PPTCombiner.FS\PPTCombiner.FS.fsproj", "{89C38A05-5EA8-4F24-ADAB-E949910BF8AA}"
+Project("{F2A71F9B-5D33-465A-A702-920D77279786}") = "PresentationCombiner.FS", "PresentationCombiner.FS\PresentationCombiner.FS.fsproj", "{89C38A05-5EA8-4F24-ADAB-E949910BF8AA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

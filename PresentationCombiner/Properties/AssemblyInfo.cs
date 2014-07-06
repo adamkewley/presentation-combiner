@@ -7,11 +7,11 @@ using System.Windows;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("PPTCombiner")]
+[assembly: AssemblyTitle("PresentationCombiner")]
 [assembly: AssemblyDescription("Combine presentation files easily.")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("AdamK117")]
-[assembly: AssemblyProduct("PPTCombiner")]
+[assembly: AssemblyProduct("PresentationCombiner")]
 [assembly: AssemblyCopyright("Copyright ©  2014")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]

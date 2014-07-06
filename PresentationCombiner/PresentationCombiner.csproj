@@ -7,8 +7,8 @@
     <ProjectGuid>{2062664F-ACF1-48BF-BB30-EEEC564CD3F0}</ProjectGuid>
     <OutputType>WinExe</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>PPTCombiner</RootNamespace>
-    <AssemblyName>PPTCombiner</AssemblyName>
+    <RootNamespace>PresentationCombiner</RootNamespace>
+    <AssemblyName>PresentationCombiner</AssemblyName>
     <TargetFrameworkVersion>v4.0</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
@@ -65,10 +65,14 @@
     <ErrorReport>prompt</ErrorReport>
     <CodeAnalysisRuleSet>MinimumRecommendedRules.ruleset</CodeAnalysisRuleSet>
   </PropertyGroup>
+  <PropertyGroup>
+    <ApplicationIcon>application-icon.ico</ApplicationIcon>
+  </PropertyGroup>
   <ItemGroup>
     <Reference Include="FSharp.Core, Version=4.3.0.0, Culture=neutral, PublicKeyToken=b03f5f7f11d50a3a, processorArchitecture=MSIL" />
     <Reference Include="PresentationFramework" />
     <Reference Include="System" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Windows.Forms" />
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Xaml">
@@ -84,6 +88,11 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Properties\Resources.Designer.cs">
+      <AutoGen>True</AutoGen>
+      <DesignTime>True</DesignTime>
+      <DependentUpon>Resources.resx</DependentUpon>
+    </Compile>
     <Page Include="MainWindow.xaml">
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
@@ -140,9 +149,9 @@
     </BootstrapperPackage>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\PPTCombiner.FS\PPTCombiner.FS.fsproj">
+    <ProjectReference Include="..\PresentationCombiner.FS\PresentationCombiner.FS.fsproj">
       <Project>{89c38a05-5ea8-4f24-adab-e949910bf8aa}</Project>
-      <Name>PPTCombiner.FS</Name>
+      <Name>PresentationCombiner.FS</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>
@@ -161,6 +170,18 @@
   </ItemGroup>
   <ItemGroup>
     <Resource Include="img\drag-n-drop-99.png" />
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="application-icon.ico" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Properties\Resources.resx">
+      <Generator>ResXFileCodeGenerator</Generator>
+      <LastGenOutput>Resources.Designer.cs</LastGenOutput>
+    </EmbeddedResource>
+  </ItemGroup>
+  <ItemGroup>
+    <Resource Include="img\application-icon.ico" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <Import Project="Fody.targets" Condition=" '$(Configuration)' == 'Release' " />
