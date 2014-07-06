@@ -111,14 +111,13 @@
             </Border>
 
             <!-- Delete selection -->
-            <Border CornerRadius="2" BorderThickness="1" BorderBrush="Black" >
+            <Border CornerRadius="2" BorderThickness="1" BorderBrush="Black" Margin="0,5,0,0" >
                 <Button Content="Delete Selection" 
                         HorizontalContentAlignment="Right" VerticalAlignment="Top" 
                         Command="{Binding RemoveSelected}" 
                         Grid.Column="1" 
                         BorderThickness="0" 
-                        ToolTip="Delete the Current Selection (DEL)"
-                        Margin="0,5,0,0">
+                        ToolTip="Delete the Current Selection (DEL)">
                     <Button.Background>
                         <ImageBrush ImageSource="img\action_Cancel_16xLG.png" Stretch="Uniform" AlignmentX="Left"/>
                     </Button.Background>
