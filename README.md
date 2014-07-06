@@ -1,4 +1,4 @@
-# Presentation Combiner
+# ![Screenshot of Presentation Combiner](https://github.com/adamk117/ppt-combiner/raw/master/img/entire-icon.png) Presentation Combiner
 *Combine multiple presentation files into one.*
 
 ![Screenshot of Presentation Combiner](https://github.com/adamk117/ppt-combiner/raw/master/img/app-screenshot.png)
