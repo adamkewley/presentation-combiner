@@ -1,7 +1,7 @@
 # Presentation Combiner
 *Combine multiple presentation files into one.*
 
-![Screenshot of Presentation Combiner](https://raw.github.com/adamk117/master/img/app-screenshot.png)
+![Screenshot of Presentation Combiner](https://github.com/adamk117/ppt-combiner/raw/master/img/app-screenshot.png)
 
 `Presentation Combiner` automates Microsoft PowerPoint to combine presentation files into one output. It currently supports `.ppt`, `.pptx`, `.pptm`, `.ppsx`, `.ppsm`, `.pps`, and `.odp` files. `Presentation Combiner` will open a Microsoft PowerPoint window with the combined slides shown.
 
