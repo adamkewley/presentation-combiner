@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Linq;
 using System.Windows.Input;
 
 namespace PresentationCombiner.Commands
@@ -30,12 +31,18 @@ namespace PresentationCombiner.Commands
 
         public void Execute(object parameter)
         {
-            var selectedBuffer = new List<AddedPath>(selectedPaths);
+            var selection = new List<Tuple<int, AddedPath>>();
+
+            foreach(AddedPath selectedPath in selectedPaths)
+            {
+                int index = addedPaths.IndexOf(selectedPath);
+                selection.Add(new Tuple<int, AddedPath>(index, selectedPath));
+            }
 
             var command = PresentationCombiner.FS.Commands.CreateReversibleCommand(
                     () =>
                     {
-                        foreach (AddedPath selectedPath in selectedBuffer)
+                        foreach (AddedPath selectedPath in selection.Select(x => x.Item2))
                         {
                             this.selectedPaths.Remove(selectedPath);
                             this.addedPaths.Remove(selectedPath);
@@ -43,10 +50,14 @@ namespace PresentationCombiner.Commands
                     },
                     () =>
                     {
-                        foreach (AddedPath selectedPath in selectedBuffer)
+                        // sort according to location
+                        var orderedSelection = selection.OrderBy(x => x.Item1);
+
+                        // re-add
+                        foreach (Tuple<int, AddedPath> selectedPath in orderedSelection)
                         {
-                            this.addedPaths.Add(selectedPath);
-                            this.selectedPaths.Add(selectedPath);
+                            addedPaths.Insert(selectedPath.Item1, selectedPath.Item2);
+                            this.selectedPaths.Add(selectedPath.Item2);
                         }
                     });
 

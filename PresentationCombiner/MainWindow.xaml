@@ -65,6 +65,7 @@
             Margin="10,10,10,10"
             VerticalAlignment="Stretch" HorizontalAlignment="Stretch"
             ItemsSource="{Binding Paths}" 
+                  
             SelectionChanged="AddedPathsList_SelectionChanged" SelectionMode="Extended" />
         
         <!-- Overlay when Main List is Empty -->
