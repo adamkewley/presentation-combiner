@@ -8,6 +8,7 @@ type PathType = ValidFile | InvalidFile | Folder | EmptyFolder | InvalidPath
 /// <summary>
 /// A record that holds information about an added path.
 /// </summary>
+[<ReferenceEquality>]
 type AddedPath = 
     { AddedPath : string
       PathType : PathType
