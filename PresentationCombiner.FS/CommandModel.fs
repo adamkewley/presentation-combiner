@@ -93,5 +93,5 @@ type CommandController () =
         member this.CanRedoChanged = canRedoChanged.Publish
 
 module Commands =
-    let CreateReversibleCommand forwardCommand backwardCommand =
+    let CreateReversibleCommand (forwardCommand: Action, backwardCommand: Action) =
         { Execute = forwardCommand; UnExecute = backwardCommand }

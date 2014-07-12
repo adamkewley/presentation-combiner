@@ -41,23 +41,23 @@ module FHelpers =
     /// Map an AddedPath type (model) to an AddedPathView (ui binding model).
     /// </summary>
     /// <param name="pth">The AddedPath to map.</param>
-    let internal addedPathtoAddedPathView pth = 
+    let internal addedPathtoAddedPathView addedPath = 
 
         let icon =  
-            match pth.PathType with
+            match addedPath.PathType with
             | ValidFile -> "img\\NewWindow_6277.png"
             | Folder    -> "img\\folder_Open_32xLG.png"
             | _         -> "img\\action_Cancel_16xLG.png"
 
         let name =
-            match pth.PathType with
-            | InvalidPath -> pth.AddedPath
-            | _           -> Path.GetFileName(pth.AddedPath)
+            match addedPath.PathType with
+            | InvalidPath -> addedPath.AddedPath
+            | _           -> Path.GetFileName(addedPath.AddedPath)
 
         { Icon = icon 
           Name = name 
-          ValidFileCount = pth.ValidFileCount 
-          AddedPath = pth }
+          ValidFileCount = addedPath.ValidFileCount 
+          AddedPath = addedPath }
 
     let DialogPaths =
         let allPaths =

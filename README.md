@@ -17,12 +17,13 @@
 
 ### Known Bugs
 
- - If there are multiple instances of the same path added to `PresentationCombiner` (e.g. `example-file.pptx` is added three times as a merge target) and the user tries to delete a selection of one of them `PresentationCombiner` may delete the incorrect occurance of the item.
  - Error messages due to invalid data are not passed from Microsoft PowerPoint to `PresentationCombiner`. If a corrupt presentation file is passed to Microsoft PowerPoint it will discontinue merging without good feedback to `PresentationCombiner`
 
 ### ToDo
 Improvements are ongoing but have no strict schedule (hobby project, sorry).
-
+ - Drag & drop items in the merge list. Items can't be moved at the moment.
+ - Re-sort items in the merge list.
+ - Slightly more comprehensive undo/redo listings
  - Implement better tooltips and error messages:
      - Tooltips on disabled buttons (explain why they are disabled).
      - Tidier error messages if the user doesn't have PowerPoint installed
